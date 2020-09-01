@@ -20,19 +20,30 @@ import org.springframework.beans.BeansException;
 import org.springframework.lang.Nullable;
 
 /**
+ * BeanPostProcessor是Spring容器的一个扩展点，可以进行自定义的实例化、初始化、依赖装配、依赖检查等
+ * 流程，即可以覆盖默认的实例化，也可以增强初始化、依赖注入、依赖检等流程
+ *
  * Factory hook that allows for custom modification of new bean instances &mdash;
  * for example, checking for marker interfaces or wrapping beans with proxies.
+ *
+ *  如可以检查相应的标识接口完成一些自定义功能实现，如包装目标对象到代理对象
  *
  * <p>Typically, post-processors that populate beans via marker interfaces
  * or the like will implement {@link #postProcessBeforeInitialization},
  * while post-processors that wrap beans with proxies will normally
  * implement {@link #postProcessAfterInitialization}.
  *
+ *  通过标记接口填充bean的post-processors 或者类似的将实现  postProcessBeforeInitialization，
+ *  而使用代理包装bean的后处理器通常实现 postProcessAfterInitialization
+ *
  * <h3>Registration</h3>
  * <p>An {@code ApplicationContext} can autodetect {@code BeanPostProcessor} beans
  * in its bean definitions and apply those post-processors to any beans subsequently
  * created. A plain {@code BeanFactory} allows for programmatic registration of
  * post-processors, applying them to all beans created through the bean factory.
+ *
+ * ApplicationContext 可以在其bean定义中自动检测 BeanPostProcessor 并且随后将这些 post-processors 用于任何bean的创建
+ * 普通的 BeanFactory 允许编程注册post-processors ，将它们应用于通过bean工厂创建的所有bean
  *
  * <h3>Ordering</h3>
  * <p>{@code BeanPostProcessor} beans that are autodetected in an
@@ -58,6 +69,9 @@ import org.springframework.lang.Nullable;
 public interface BeanPostProcessor {
 
 	/**
+   *
+   * bean 初始化前前增强
+   *
 	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>before</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
@@ -76,6 +90,8 @@ public interface BeanPostProcessor {
 	}
 
 	/**
+   *    * bean 初始后前前增强 同InitializingBean
+   *
 	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>after</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.

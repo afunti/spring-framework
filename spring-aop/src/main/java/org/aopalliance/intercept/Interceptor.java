@@ -53,6 +53,8 @@ import org.aopalliance.aop.Advice;
  *
  * @author Rod Johnson
  * @see Joinpoint
+ *
+ * 增强Advice在spring中就是用interceptor来表征的
  */
 public interface Interceptor extends Advice {
 

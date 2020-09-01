@@ -89,15 +89,21 @@ import org.springframework.util.StringUtils;
  * Spring's default implementation of the {@link ConfigurableListableBeanFactory}
  * and {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
  * based on bean definition metadata, extensible through post-processors.
+ * BeanDefinitionRegistry ConfigurableListableBeanFactory的默认实现，一个成熟的基于bean定义元数据可以通过post-processors 扩展的 bean 工厂
  *
  * <p>Typical usage is registering all bean definitions first (possibly read
  * from a bean definition file), before accessing beans. Bean lookup by name
  * is therefore an inexpensive operation in a local bean definition table,
  * operating on pre-resolved bean definition metadata objects.
  *
+ * 典型的应用是在访问bean之前，注册所有bean的定义。因此在本地bean定义表中根据name去查找bean是一个廉价的操作，在提前解析bean定义元数据的对象
+ *
  * <p>Note that readers for specific bean definition formats are typically
  * implemented separately rather than as bean factory subclasses: see for example
  * {@link org.springframework.beans.factory.xml.XmlBeanDefinitionReader}.
+ *
+ * 注意 读取特定的bean的定义格式通常独立实现而不是作为BeanFactory子类实现 如：XmlBeanDefinitionReader
+ *
  *
  * <p>For an alternative implementation of the
  * {@link org.springframework.beans.factory.ListableBeanFactory} interface,
