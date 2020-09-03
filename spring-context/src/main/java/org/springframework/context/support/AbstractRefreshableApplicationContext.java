@@ -16,14 +16,14 @@
 
 package org.springframework.context.support;
 
-import java.io.IOException;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.lang.Nullable;
+
+import java.io.IOException;
 
 /**
  * Base class for {@link org.springframework.context.ApplicationContext}
@@ -116,6 +116,8 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * This implementation performs an actual refresh of this context's underlying
 	 * bean factory, shutting down the previous bean factory (if any) and
 	 * initializing a fresh bean factory for the next phase of the context's lifecycle.
+   *
+   * 此实现执行此上下文的底层bean工厂的实际刷新，关闭前一个bean工厂（如果有的话），并为上下文生命周期的下一个阶段初始化一个新的bean工厂
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
@@ -126,7 +128,13 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 		try {
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
+			//定制 BeanFactory，是否允许 BeanDefinition 覆盖、是否允许循环引用
 			customizeBeanFactory(beanFactory);
+        /**
+         * 加载bean定义，AbstractXmlApplicationContext、AnnotationConfigWebApplicationContext等各种子类实现
+         *  通过 BeanDefinitionReader 解析 xml 文件，解析封装信息到 BeanDefinition，并将其 register 到 BeanFactory 中
+         *  以 beanName为key将beanDefinition 存到 DefaultListableBeanFactory#beanDefinitionMap 中
+         */
 			loadBeanDefinitions(beanFactory);
 			this.beanFactory = beanFactory;
 		}
@@ -180,6 +188,9 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 	/**
+   *
+   * 创建默认的bean 工厂
+   *
 	 * Create an internal bean factory for this context.
 	 * Called for each {@link #refresh()} attempt.
 	 * <p>The default implementation creates a
@@ -205,6 +216,9 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * and {@linkplain #setAllowCircularReferences "allowCircularReferences"} settings,
 	 * if specified. Can be overridden in subclasses to customize any of
 	 * {@link DefaultListableBeanFactory}'s settings.
+   *
+   * 自定义被当前上下文使用的内部bean工厂
+   *
 	 * @param beanFactory the newly created bean factory for this context
 	 * @see DefaultListableBeanFactory#setAllowBeanDefinitionOverriding
 	 * @see DefaultListableBeanFactory#setAllowCircularReferences

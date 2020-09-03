@@ -1456,15 +1456,22 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 		ClassLoader beanClassLoader = getBeanClassLoader();
 		ClassLoader dynamicLoader = beanClassLoader;
+		// 表示是否是第一次解析
 		boolean freshResolve = false;
 
 		if (!ObjectUtils.isEmpty(typesToMatch)) {
 			// When just doing type checks (i.e. not creating an actual instance yet),
 			// use the specified temporary class loader (e.g. in a weaving scenario).
+
+        // 只是做类型检查（即 尚未创建一个真实的实例）
+        // 使用指定的临时class loader （如编织场景中）
+        // AbstractApplicationContext.prepareBeanFactory中设置tempClassLoader();
 			ClassLoader tempClassLoader = getTempClassLoader();
+        // 第一次解析的话，需要排除
 			if (tempClassLoader != null) {
 				dynamicLoader = tempClassLoader;
 				freshResolve = true;
+
 				if (tempClassLoader instanceof DecoratingClassLoader) {
 					DecoratingClassLoader dcl = (DecoratingClassLoader) tempClassLoader;
 					for (Class<?> typeToMatch : typesToMatch) {
@@ -1507,6 +1514,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
+		// 常规解析，将解析的class结果缓存到 BeanDefinition.beanClass
 		// Resolve regularly, caching the result in the BeanDefinition...
 		return mbd.resolveBeanClass(beanClassLoader);
 	}

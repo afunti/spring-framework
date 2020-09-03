@@ -16,11 +16,6 @@
 
 package org.springframework.context.support;
 
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanDefinitionStoreException;
@@ -39,12 +34,20 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
+
 /**
  * Generic ApplicationContext implementation that holds a single internal
  * {@link org.springframework.beans.factory.support.DefaultListableBeanFactory}
  * instance and does not assume a specific bean definition format. Implements
  * the {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}
  * interface in order to allow for applying any bean definition readers to it.
+ *
+ * 通用的ApplicationContext实现，持有一个单例内部DefaultListableBeanFactory实例，并且不假设一个特定的bean 定义的格式
+ * 实现BeanDefinitionRegistry这个接口的目的是允许接受任何bean定义的readers(bean定义的读取方法实现类)
  *
  * <p>Typical usage is to register a variety of bean definitions via the
  * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry}
@@ -54,10 +57,16 @@ import org.springframework.util.Assert;
  * {@link org.springframework.beans.factory.config.BeanFactoryPostProcessor BeanFactoryPostProcessors},
  * etc).
  *
+ * 典型的用法是通过.BeanDefinitionRegistry接口注册各种bean定义，然后调用refresh（）用应用程序上下文语义初始化这些bean
+ * （处理ApplicationContextAware，自动检测BeanFactoryPostProcessors等等）
+ *
  * <p>In contrast to other ApplicationContext implementations that create a new
  * internal BeanFactory instance for each refresh, the internal BeanFactory of
  * this context is available right from the start, to be able to register bean
  * definitions on it. {@link #refresh()} may only be called once.
+ *
+ * 与其他为每次刷新创建一个新的内部BeanFactory实例的ApplicationContext实现不同，
+ * 此上下文(context)的内部BeanFactory从一开始就可用，可以在其上注册bean定义。refresh（）只能调用一次
  *
  * <p>Usage example:
  *
@@ -82,6 +91,8 @@ import org.springframework.util.Assert;
  * <p>For custom application context implementations that are supposed to read
  * special bean definition formats in a refreshable manner, consider deriving
  * from the {@link AbstractRefreshableApplicationContext} base class.
+ *
+ * 对于应该以可刷新方式读取特殊bean定义格式的自定义application context实现，请考虑从{@link AbstractRefreshableApplicationContext}基类派生
  *
  * @author Juergen Hoeller
  * @author Chris Beams

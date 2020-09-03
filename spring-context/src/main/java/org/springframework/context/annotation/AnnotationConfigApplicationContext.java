@@ -16,8 +16,6 @@
 
 package org.springframework.context.annotation;
 
-import java.util.function.Supplier;
-
 import org.springframework.beans.factory.config.BeanDefinitionCustomizer;
 import org.springframework.beans.factory.support.BeanNameGenerator;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -26,11 +24,16 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import java.util.function.Supplier;
+
 /**
  * Standalone application context, accepting <em>component classes</em> as input &mdash;
  * in particular {@link Configuration @Configuration}-annotated classes, but also plain
  * {@link org.springframework.stereotype.Component @Component} types and JSR-330 compliant
  * classes using {@code javax.inject} annotations.
+ *
+ *  独立的application context 接受component classes当做输入，特别是带有@Configuration注释的类 *
+ *  也可以是普通的@Component的类型和与JSR-330兼容的使用{javax.inject}注解的类 。
  *
  * <p>Allows for registering classes one by one using {@link #register(Class...)}
  * as well as for classpath scanning using {@link #scan(String...)}.
@@ -39,6 +42,9 @@ import org.springframework.util.Assert;
  * defined in later classes will override those defined in earlier classes. This can
  * be leveraged to deliberately override certain bean definitions via an extra
  * {@code @Configuration} class.
+ *
+ * 多个@Configuration的注解的类，在后面定义的@Bean方法将覆盖之前的@Bean定义的方法。
+ * 这可以通过一个额外的@Configuration注解的类故意覆盖某些bean定义。
  *
  * <p>See {@link Configuration @Configuration}'s javadoc for usage examples.
  *

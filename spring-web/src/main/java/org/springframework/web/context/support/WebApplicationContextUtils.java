@@ -52,9 +52,15 @@ import org.springframework.web.context.request.WebRequest;
  * a given {@link ServletContext}. This is useful for programmatically accessing
  * a Spring application context from within custom web views or MVC actions.
  *
+ * 为给定的ServletContext检索根WebApplicationContext的方便方法。
+ * 这对于从自定义web视图或MVC操作中以编程方式访问Spring应用程序上下文非常有用
+ *
  * <p>Note that there are more convenient ways of accessing the root context for
  * many web frameworks, either part of Spring or available as an external library.
  * This helper class is just the most generic way to access the root context.
+ *
+ * 请注意，对于许多web框架，无论是Spring的一部分还是作为外部库提供的，都有更方便的访问根上下文的方法。
+ * 这个helper类只是访问根上下文的最通用方法。
  *
  * @author Juergen Hoeller
  * @see org.springframework.web.context.ContextLoader

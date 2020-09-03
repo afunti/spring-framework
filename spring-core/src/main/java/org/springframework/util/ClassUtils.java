@@ -16,31 +16,14 @@
 
 package org.springframework.util;
 
+import org.springframework.lang.Nullable;
+
 import java.beans.Introspector;
 import java.io.Closeable;
 import java.io.Externalizable;
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.StringJoiner;
-
-import org.springframework.lang.Nullable;
+import java.lang.reflect.*;
+import java.util.*;
 
 /**
  * Miscellaneous {@code java.lang.Class} utility methods.
@@ -234,6 +217,11 @@ public abstract class ClassUtils {
 	 * for primitives (e.g. "int") and array class names (e.g. "String[]").
 	 * Furthermore, it is also capable of resolving inner class names in Java source
 	 * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
+   *
+   *  Class.forName() 的替代品，并且可以以java的命名方式解析内部类.如 返回 "java.lang.Thread.State" 而不是 "java.lang.Thread$State"
+   *
+   * 最终还是调用的sdk的 class.forName(),但是对内部类做了处理
+   *
 	 * @param name the name of the Class
 	 * @param classLoader the class loader to use
 	 * (may be {@code null}, which indicates the default class loader)

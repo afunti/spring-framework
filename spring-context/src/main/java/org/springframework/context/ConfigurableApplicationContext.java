@@ -16,8 +16,6 @@
 
 package org.springframework.context;
 
-import java.io.Closeable;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -26,15 +24,20 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ProtocolResolver;
 import org.springframework.lang.Nullable;
 
+import java.io.Closeable;
+
 /**
  * SPI interface to be implemented by most if not all application contexts.
  * Provides facilities to configure an application context in addition
  * to the application context client methods in the
  * {@link org.springframework.context.ApplicationContext} interface.
+ * SPI接口将由大多数（如果不是全部）application contexts 实现.
+ * 提供了除ApplicationContext接口中的application context客户端方法之外，还可以配置application context的工具
  *
  * <p>Configuration and lifecycle methods are encapsulated here to avoid
  * making them obvious to ApplicationContext client code. The present
  * methods should only be used by startup and shutdown code.
+ * 这里封装了配置和生命周期方法，以避免使它们对ApplicationContext客户端代码显而易见。目前的方法只能由启动和关闭(应用)代码使用。
  *
  * @author Juergen Hoeller
  * @author Chris Beams

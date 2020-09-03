@@ -16,15 +16,6 @@
 
 package org.springframework.beans.factory.support;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.Supplier;
-
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
@@ -33,12 +24,20 @@ import org.springframework.core.ResolvableType;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 
+import java.lang.reflect.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Supplier;
+
 /**
  * A root bean definition represents the merged bean definition that backs
  * a specific bean in a Spring BeanFactory at runtime. It might have been created
  * from multiple original bean definitions that inherit from each other,
  * typically registered as {@link GenericBeanDefinition GenericBeanDefinitions}.
  * A root bean definition is essentially the 'unified' bean definition view at runtime.
+ * 根bean定义表示支持运行时在Spring BeanFactory中对特定bean的合并的bean的定义
+ * 它可能是由多个相互继承的原始bean定义创建的，通常注册为GenericBeanDefinitions。根bean定义本质上是运行时的“统一”bean定义视图
+ * （主要是spring运行时内部可以用来合并多个definition）
  *
  * <p>Root bean definitions may also be used for registering individual bean definitions
  * in the configuration phase. However, since Spring 2.5, the preferred way to register

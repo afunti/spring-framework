@@ -16,14 +16,16 @@
 
 package org.springframework.core;
 
+import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
+
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.lang.Nullable;
-import org.springframework.util.Assert;
-
 /**
+ * 用于装饰 ClassLoaders 的基类，如 OverridingClassLoader、ShadowingClassLoader提供通用的排除包和class的处理
+ *
  * Base class for decorating ClassLoaders such as {@link OverridingClassLoader}
  * and {@link org.springframework.instrument.classloading.ShadowingClassLoader},
  * providing common handling of excluded packages and classes.

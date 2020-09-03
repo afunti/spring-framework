@@ -19,6 +19,9 @@ package org.springframework.core.env;
 /**
  * {@link Environment} implementation suitable for use in 'standard' (i.e. non-web)
  * applications.
+ * 适配标准应用（非web应用）的Environment实现
+ *
+ *很清楚，将系统System.getProperties() ，System.getenv() 里面的属性添加到了MutablePropertySources中
  *
  * <p>In addition to the usual functions of a {@link ConfigurableEnvironment} such as
  * property resolution and profile-related operations, this implementation configures two
@@ -45,6 +48,8 @@ package org.springframework.core.env;
  * of property names in shell environments (e.g. Bash) that disallow period characters in
  * variable names.
  *
+ * 将系统System.getProperties() ，System.getenv() 里面的属性添加到了MutablePropertySources中
+
  * @author Chris Beams
  * @since 3.1
  * @see ConfigurableEnvironment

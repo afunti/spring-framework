@@ -16,12 +16,12 @@
 
 package org.springframework.beans.factory.config;
 
-import java.util.Iterator;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.lang.Nullable;
+
+import java.util.Iterator;
 
 /**
  * Configuration interface to be implemented by most listable bean factories.
@@ -64,12 +64,21 @@ public interface ConfigurableListableBeanFactory
 
 	/**
 	 * Register a special dependency type with corresponding autowired value.
+   * 用相应的autowired值注册一个特殊的依赖类型。
+   *
 	 * <p>This is intended for factory/context references that are supposed
 	 * to be autowirable but are not defined as beans in the factory:
 	 * e.g. a dependency of type ApplicationContext resolved to the
 	 * ApplicationContext instance that the bean is living in.
+   *
+   * 这适用于工厂/上下文引用，这些引用应该是可自动连接的，但在工厂中没有定义为bean：
+   * 例如，将一个ApplicationContext类型的依赖 解析为bean所在的ApplicationContext实例。
+   *
 	 * <p>Note: There are no such default types registered in a plain BeanFactory,
 	 * not even for the BeanFactory interface itself.
+   *
+   * 注意：在普通BeanFactory中没有注册此类默认类型，甚至对BeanFactory接口本身也没有
+   *
 	 * @param dependencyType the dependency type to register. This will typically
 	 * be a base interface such as BeanFactory, with extensions of it resolved
 	 * as well if declared as an autowiring dependency (e.g. ListableBeanFactory),

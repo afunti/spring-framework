@@ -22,11 +22,14 @@ import org.springframework.lang.Nullable;
 
 /**
  * The root interface for accessing a Spring bean container.
+ * 访问spring bean容器的根接口
  *
  * <p>This is the basic client view of a bean container;
  * further interfaces such as {@link ListableBeanFactory} and
  * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
  * are available for specific purposes.
+ *
+ * 这是bean容器的基本客户端视图，其他接口如ListableBeanFactory和 ConfigurableBeanFactory 可用于特殊的目的
  *
  * <p>This interface is implemented by objects that hold a number of bean definitions,
  * each uniquely identified by a String name. Depending on the bean definition,
@@ -38,17 +41,32 @@ import org.springframework.lang.Nullable;
  * 2.0, further scopes are available depending on the concrete application
  * context (e.g. "request" and "session" scopes in a web environment).
  *
+ * 个接口由包含许多bean定义的对象实现，每个定义都由一个字符串名唯一标识。
+ * 根据bean的定义，工厂将返回包含对象的独立实例（原型设计模式），
+ * 或单个共享实例（Singleton设计模式的高级替代方案，其中实例是工厂范围内的单个实例）。
+ * 返回哪种类型的实例取决于bean工厂配置：API是相同的。
+ * 从spring2.0开始，根据具体的应用程序上下文（例如web环境中的“请求”和“会话”作用域）可以使用更多的作用域。
+ *
+ *
  * <p>The point of this approach is that the BeanFactory is a central registry
  * of application components, and centralizes configuration of application
  * components (no more do individual objects need to read properties files,
  * for example). See chapters 4 and 11 of "Expert One-on-One J2EE Design and
  * Development" for a discussion of the benefits of this approach.
  *
+ *  这种方法的要点是BeanFactory是应用程序组件的注册中心，它集中了应用程序组件的配置（配置中心）
+ *  （例如，不再需要单个对象读取属性文件）。
+ *  关于这种方法的好处，请参阅“Expert One-on-One J2EE Design and Development”的第4章和第11章。
+ *
  * <p>Note that it is generally better to rely on Dependency Injection
  * ("push" configuration) to configure application objects through setters
  * or constructors, rather than use any form of "pull" configuration like a
  * BeanFactory lookup. Spring's Dependency Injection functionality is
  * implemented using this BeanFactory interface and its subinterfaces.
+ *
+ * 注意，通常依靠依赖注入（“推”配置）使用setter或构造函数去配置应用程序对象比较好，
+ * 而不是使用任何形式的“拉”配置如通过BeanFactory查找那样
+ * Spring的依赖注入功能是使用这个BeanFactory接口及其子接口实现的。
  *
  * <p>Normally a BeanFactory will load bean definitions stored in a configuration
  * source (such as an XML document), and use the {@code org.springframework.beans}
@@ -58,14 +76,25 @@ import org.springframework.lang.Nullable;
  * properties file, etc. Implementations are encouraged to support references
  * amongst beans (Dependency Injection).
  *
+ *  通常，BeanFactory将加载存储在配置源（例如XML文档）中的bean定义，并使用org.springframework.beans包来配置bean。
+ *  然而，一个实现可以直接在Java代码中返回它根据需要创建的Java对象。
+ *  定义的存储方式没有限制：LDAP、RDBMS、XML、属性文件等。
+ *  我们鼓励实现支持bean之间的引用（依赖注入）。
+ *
  * <p>In contrast to the methods in {@link ListableBeanFactory}, all of the
  * operations in this interface will also check parent factories if this is a
  * {@link HierarchicalBeanFactory}. If a bean is not found in this factory instance,
  * the immediate parent factory will be asked. Beans in this factory instance
  * are supposed to override beans of the same name in any parent factory.
  *
+ * 与 ListableBeanFactory 中的方法不同，如果这是个 HierarchicalBeanFactory，则此接口中的所有操作也将检查父工厂。
+ *  如果在这个工厂实例中找不到bean，则会询问直接的父工厂。
+ *  此工厂实例中的bean应该覆盖任何父工厂中同名的bean。
+ *
  * <p>Bean factory implementations should support the standard bean lifecycle interfaces
  * as far as possible. The full set of initialization methods and their standard order is:
+ * Bean工厂实现应该尽可能支持标准的Bean生命周期接口。全套初始化方法及其标准顺序为：
+ *
  * <ol>
  * <li>BeanNameAware's {@code setBeanName}
  * <li>BeanClassLoaderAware's {@code setBeanClassLoader}
@@ -113,6 +142,20 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.beans.factory.config.BeanPostProcessor#postProcessAfterInitialization
  * @see DisposableBean#destroy
  * @see org.springframework.beans.factory.support.RootBeanDefinition#getDestroyMethodName
+ *
+ *
+ * 1.BeanFactroy采用的是延迟加载形式来注入Bean的，即只有在使用到某个Bean时(调用getBean())
+ * 才对该Bean进行加载实例化，这样，我们就不能发现一些存在的Spring的配置问题。而ApplicationContext则相反，它是在容器启动时，一次性创建了所有的Bean。这样，在容器启动时，我们就可以发
+ * 现Spring中存在的配置错误。 相对于基本的BeanFactory，ApplicationContext 唯一的不足是占用内存空间。当应用程序配置Bean较多时，程序启动较慢。BeanFacotry延迟加载,如果Bean的某一个
+ * 属性没有注入，BeanFacotry加载后，直至第一次使用调用getBean方法才会抛出异常；而ApplicationContext则在初始化自身是检验，这样有利于检查所依赖属性是否注入；所以通常情况下我们选择使用
+ * ApplicationContext。应用上下文则会在上下文启动后预载入所有的单实例Bean。通过预载入单实例bean ,确保当你需要的时候，你就不用等待，因为它们已经创建好了。
+ *
+ * 2.BeanFactory和ApplicationContext都支持BeanPostProcessor、BeanFactoryPostProcessor的使用，但两者之间的区别是：BeanFactory需要手动注册，而ApplicationContext则是自动注册。
+ * （Applicationcontext比 beanFactory 加入了一些更好使用的功能。而且 beanFactory 的许多功能需要通过编程实现而 Applicationcontext 可以通过配置实现。比如后处理 bean ，
+ * Applicationcontext 直接配置在配置文件即可而 beanFactory 这要在代码中显示的写出来才可以被容器识别。 ）
+ *
+ * 3.beanFactory主要是面对与 spring 框架的基础设施，面对 spring 自己。而 Applicationcontex 主要面对与 spring 使用的开发者。基本都会使用 Applicationcontex 并非 beanFactory。
+ * 4.同时也继承了容器的高级功能，如：MessageSource（国际化资源接口）、ResourceLoader（资源加载接口）、ApplicationEventPublisher（应用事件发布接口）等
  */
 public interface BeanFactory {
 

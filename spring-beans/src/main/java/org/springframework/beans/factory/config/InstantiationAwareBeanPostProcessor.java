@@ -23,6 +23,8 @@ import org.springframework.beans.PropertyValues;
 import org.springframework.lang.Nullable;
 
 /**
+ *  实例化前后的一个回调
+ *
  * Subinterface of {@link BeanPostProcessor} that adds a before-instantiation callback,
  * and a callback after instantiation but before explicit properties are set or
  * autowiring occurs.
@@ -31,6 +33,7 @@ import org.springframework.lang.Nullable;
  * for example to create proxies with special TargetSources (pooling targets,
  * lazily initializing targets, etc), or to implement additional injection strategies
  * such as field injection.
+ * 通常用于对特定的目标bean控制默认的实例
  *
  * <p><b>NOTE:</b> This interface is a special purpose interface, mainly for
  * internal use within the framework. It is recommended to implement the plain

@@ -449,9 +449,16 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	}
 
 	/**
+   *
 	 * Determine the class of the wrapped bean, resolving it from a
-	 * specified class name if necessary. Will also reload a specified
+	 * specified class name if necessary.
+   *
+   * 确定包装bean的类，如果需要，从指定的类名解析它
+   *
+   * Will also reload a specified
 	 * Class from its name when called with the bean class already resolved.
+   * 当用已经解析的bean类调用时，将从其名称重新加载指定的Class
+   *
 	 * @param classLoader the ClassLoader to use for resolving a (potential) class name
 	 * @return the resolved bean class
 	 * @throws ClassNotFoundException if the class name could be resolved

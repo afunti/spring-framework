@@ -34,6 +34,8 @@ import org.springframework.web.context.ConfigurableWebEnvironment;
  * applications. All web-related (servlet-based) {@code ApplicationContext} classes
  * initialize an instance by default.
  *
+ * 被基于servlet的web应用使用的Environment实现，所有web相关（基于servlet）的ApplicationContext类 默认初始化一个实例
+ *
  * <p>Contributes {@code ServletConfig}, {@code ServletContext}, and JNDI-based
  * {@link PropertySource} instances. See {@link #customizePropertySources} method
  * documentation for details.
