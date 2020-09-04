@@ -101,8 +101,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	private final Set<Class<?>> ignoredDependencyTypes = new HashSet<>();
 
 	/**
-	 * Dependency interfaces to ignore on dependency check and autowire, as Set of
+   * 忽略依赖检查和自动装配的依赖接口，真正意思是在自动装配时，忽略指定接口的实现类中的对外的依赖
+   * Dependency interfaces to ignore on dependency check and autowire, as Set of
 	 * Class objects. By default, only the BeanFactory interface is ignored.
+   *
+   * 如A中有B属性，当spring在获取A的bean时候如果其属性B还没有初始化，那么Spring会自动初始化B。但是，某些情况下B不会被初始化，其中一种情况就是B实现了BeanNameAWare接口，所以BeanNameAware.class会在这个set中，用作spring忽略逻辑的处理。
+   *
+   * 自动装配时忽略给定的依赖接口，典型应用是通过其他方式解析Application上下文注册依赖，类似于 BeanFactory通过BeanFactoryAware进行注入，ApplicationContext通过ApplicationAwareContext进行注入
+   *
 	 */
 	private final Set<Class<?>> ignoredDependencyInterfaces = new HashSet<>();
 
@@ -128,18 +134,22 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 */
 	public AbstractAutowireCapableBeanFactory() {
 		super();
-		ignoreDependencyInterface(BeanNameAware.class);
+      // 这里是重点。忽略自动装配
+      ignoreDependencyInterface(BeanNameAware.class);
 		ignoreDependencyInterface(BeanFactoryAware.class);
 		ignoreDependencyInterface(BeanClassLoaderAware.class);
 	}
 
 	/**
+   * 用给定的parent创建一个AbstractAutowireCapableBeanFactory
+   *
 	 * Create a new AbstractAutowireCapableBeanFactory with the given parent.
 	 * @param parentBeanFactory parent bean factory, or {@code null} if none
 	 */
 	public AbstractAutowireCapableBeanFactory(@Nullable BeanFactory parentBeanFactory) {
 		this();
-		setParentBeanFactory(parentBeanFactory);
+      // 给设置父的BeanFactory，若存在的话
+      setParentBeanFactory(parentBeanFactory);
 	}
 
 

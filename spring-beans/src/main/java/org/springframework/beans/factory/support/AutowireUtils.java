@@ -16,28 +16,19 @@
 
 package org.springframework.beans.factory.support;
 
-import java.beans.PropertyDescriptor;
-import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Executable;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Proxy;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Set;
-
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.config.TypedStringValue;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+
+import java.beans.PropertyDescriptor;
+import java.io.Serializable;
+import java.lang.reflect.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Set;
 
 /**
  * Utility class that contains various methods useful for the implementation of
@@ -123,6 +114,9 @@ abstract class AutowireUtils {
 	/**
 	 * Resolve the given autowiring value against the given required type,
 	 * e.g. an {@link ObjectFactory} value to its actual object result.
+   *
+   * 根据所需类型解析给定的自动注入的值，如一个ObjectFactory的值到它的实际对象结果
+   *
 	 * @param autowiringValue the value to resolve
 	 * @param requiredType the type to assign the result to
 	 * @return the resolved value
@@ -130,8 +124,12 @@ abstract class AutowireUtils {
 	public static Object resolveAutowiringValue(Object autowiringValue, Class<?> requiredType) {
 		if (autowiringValue instanceof ObjectFactory && !requiredType.isInstance(autowiringValue)) {
 			ObjectFactory<?> factory = (ObjectFactory<?>) autowiringValue;
-			if (autowiringValue instanceof Serializable && requiredType.isInterface()) {
-				autowiringValue = Proxy.newProxyInstance(requiredType.getClassLoader(),
+        //autowiringValue 显示是实现了Serializable 接口的
+        // 并且requiredType是个接口（HttpServletRequest是接口，继承自ServletRequest）
+        // 所以此处注意了，只能根据接口进行注入才是线程安全的，如果注入实现类，线程就是不安全的（因为无法创建代理了） 但是显然我们不可能注入实现类的
+        if (autowiringValue instanceof Serializable && requiredType.isInterface()) {
+            // 创建出来的代理对象，才是最终要被注入进去的值
+            autowiringValue = Proxy.newProxyInstance(requiredType.getClassLoader(),
 						new Class<?>[] {requiredType}, new ObjectFactoryDelegatingInvocationHandler(factory));
 			}
 			else {
@@ -291,6 +289,9 @@ abstract class AutowireUtils {
 				return this.objectFactory.toString();
 			}
 			try {
+          // 核心在这里，每次调用的方法，实际上调用的是objectFactory.getObject()这个对象的对应方法，那么这个对象源码呢？
+          //		beanFactory.registerResolvableDependency(ServletRequest.class, new RequestObjectFactory());
+          // 可以看出他是一个RequestObjectFactory类型，所以看下面getObject方法
 				return method.invoke(this.objectFactory.getObject(), args);
 			}
 			catch (InvocationTargetException ex) {

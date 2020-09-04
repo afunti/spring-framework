@@ -903,7 +903,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	/**
 	 * Return the list of BeanPostProcessors that will get applied
 	 * to beans created with this factory.
-	 */
+   * 它返回的是所有的通过BeanFactory#addBeanPostProcessor方法添加进去的后置处理器们，会存在这个List里面。
+   */
 	public List<BeanPostProcessor> getBeanPostProcessors() {
 		return this.beanPostProcessors;
 	}
@@ -1228,12 +1229,24 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 
 	/**
+   * Bean定义公共的抽象类是AbstractBeanDefinition，
+   * 普通的Bean在Spring加载Bean定义的时候，实例化出来的是GenericBeanDefinition，
+   * 而Spring上下文包括实例化所有Bean用的AbstractBeanDefinition是RootBeanDefinition，
+   * 这时候就使用getMergedLocalBeanDefinition方法做了一次转化，将非RootBeanDefinition转换为RootBeanDefinition以供后续操作。
+   *
 	 * Return a merged RootBeanDefinition, traversing the parent bean definition
 	 * if the specified bean corresponds to a child bean definition.
 	 * @param beanName the name of the bean to retrieve the merged definition for
 	 * @return a (potentially merged) RootBeanDefinition for the given bean
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the given name
 	 * @throws BeanDefinitionStoreException in case of an invalid bean definition
+   *
+   * / 该方法功能说明：在map缓存中把Bean的定义拿出来。交给getMergedLocalBeanDefinition处理。最终转换成了RootBeanDefinition类型
+   * //在转换的过程中如果BeanDefinition的父类不为空，则把父类的属性也合并到RootBeanDefinition中，
+   * //所以getMergedLocalBeanDefinition方法的作用就是获取缓存的BeanDefinition对象并合并其父类和本身的属性
+   * //注意如果当前BeanDefinition存在父BeanDefinition，会基于父BeanDefinition生成一个RootBeanDefinition,然后再将调用OverrideFrom子BeanDefinition的相关属性覆写进去
+
+   *
 	 */
 	protected RootBeanDefinition getMergedLocalBeanDefinition(String beanName) throws BeansException {
 		// Quick check on the concurrent map first, with minimal locking.
@@ -1881,6 +1894,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	protected abstract boolean containsBeanDefinition(String beanName);
 
 	/**
+   * 就是返回前面已经保存在IOC容器里的BeanDefinition定义信息
+   *
 	 * Return the bean definition for the given bean name.
 	 * Subclasses should normally implement caching, as this method is invoked
 	 * by this class every time bean definition metadata is needed.

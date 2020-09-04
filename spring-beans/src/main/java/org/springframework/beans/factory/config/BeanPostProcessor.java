@@ -85,14 +85,18 @@ import org.springframework.lang.Nullable;
  *   语句，也就是有static关键字修饰的信息，而没有static修饰的赋值语句和执行语句在实例化对象的时候才会运行。执行<clinit>()方法（clinit是class initialize的简写）
  *
  *  实例化：在堆区分配内存空间，执行实例对象初始化，设置引用变量a指向刚分配的内存地址
+ *
+ *
+ *  接口中两个方法不能返回null，如果返回null那么在后续初始化方法将报空指针异常或者通过getBean()方法获取不到bena实例对象 ，因为后置处理器从Spring IoC容器中取出bean实例对象没有再次放回IoC容器中
  */
 public interface BeanPostProcessor {
 
 	/**
    *
    * bean 初始化前前增强
-   *
-	 * Apply this {@code BeanPostProcessor} to the given new bean instance <i>before</i> any bean
+   *	// 在Bean实例化/依赖注入完毕以及自定义的初始化方法之前调用。什么叫自定义初始化方法：比如init-method、比如@PostConstruct标、比如实现InitailztingBean接口的方法等等
+
+   * Apply this {@code BeanPostProcessor} to the given new bean instance <i>before</i> any bean
 	 * initialization callbacks (like InitializingBean's {@code afterPropertiesSet}
 	 * or a custom init-method). The bean will already be populated with property values.
 	 * The returned bean instance may be a wrapper around the original.

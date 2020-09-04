@@ -195,6 +195,7 @@ public abstract class AbstractRefreshableWebApplicationContext extends AbstractR
 
 	/**
 	 * Initialize the theme capability.
+   * 初始化了它的主题
 	 */
 	@Override
 	protected void onRefresh() {

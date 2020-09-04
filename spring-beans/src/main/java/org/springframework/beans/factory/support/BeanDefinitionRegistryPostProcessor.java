@@ -25,7 +25,11 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
  * BeanFactoryPostProcessor detection kicks in. In particular,
  * BeanDefinitionRegistryPostProcessor may register further bean definitions
  * which in turn define BeanFactoryPostProcessor instances.
- *
+ *两者都存在于BeanDefinitionRegistryPostProcessor接口中，表明其既可以自定义BeanDefinition并注册进容器中也可以对beanFactory的修改
+
+ 那为什么逻辑要先执行postProcessBeanDefinitionRegistry然后在执行postProcessBeanFactory呢？
+
+ 因为postProcessBeanDefinitionRegistry是用来创建bean定义的，而postProcessBeanFactory是修改BeanFactory，当然postProcessBeanFactory也可以修改bean定义的。为了保证在修改之前所有的bean定义的都存在，所以优先执行postProcessBeanDefinitionRegistry。如不是以上顺序，会出先再修改某个bean定义的报错，因为此bean定义的还没有被创建。
  * @author Juergen Hoeller
  * @since 3.0.1
  * @see org.springframework.context.annotation.ConfigurationClassPostProcessor

@@ -190,8 +190,8 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	/**
    *
    * 创建默认的bean 工厂
-   *
-	 * Create an internal bean factory for this context.
+   *	// 创建的时候就是new了一个工厂：DefaultListableBeanFactory   这个时候工厂里面所有东西都是默认值，很多还没有完成初始化属性的设置呢
+   * Create an internal bean factory for this context.
 	 * Called for each {@link #refresh()} attempt.
 	 * <p>The default implementation creates a
 	 * {@link org.springframework.beans.factory.support.DefaultListableBeanFactory}

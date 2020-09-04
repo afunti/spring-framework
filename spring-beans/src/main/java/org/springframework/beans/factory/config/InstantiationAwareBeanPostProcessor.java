@@ -126,6 +126,10 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
+   * 在工厂给指定bean注入属性（property value）之前，对指定的property value进行处理
+   * 如Required的检查
+   * 也允许对值进行修改增加或删除
+   *
 	 * Post-process the given property values before the factory applies them
 	 * to the given bean. Allows for checking whether all dependencies have been
 	 * satisfied, for example based on a "Required" annotation on bean property setters.

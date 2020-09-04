@@ -151,11 +151,18 @@ import org.springframework.lang.Nullable;
  * ApplicationContext。应用上下文则会在上下文启动后预载入所有的单实例Bean。通过预载入单实例bean ,确保当你需要的时候，你就不用等待，因为它们已经创建好了。
  *
  * 2.BeanFactory和ApplicationContext都支持BeanPostProcessor、BeanFactoryPostProcessor的使用，但两者之间的区别是：BeanFactory需要手动注册，而ApplicationContext则是自动注册。
- * （Applicationcontext比 beanFactory 加入了一些更好使用的功能。而且 beanFactory 的许多功能需要通过编程实现而 Applicationcontext 可以通过配置实现。比如后处理 bean ，
- * Applicationcontext 直接配置在配置文件即可而 beanFactory 这要在代码中显示的写出来才可以被容器识别。 ）
+ * ApplicationContext直接使用@Bean注解，就能向容器注册一个后置处理器。原因：它注册Bean的时候，会先检测是否实现了BeanPostProcessor接口，并自动把它们注册为后置处理器。所在在它这部署一个后置处理器和注册一个普通的Bean，是没有区别的
+ * BeanFactory必须显示的调用：void addBeanPostProcessor(BeanPostProcessor beanPostProcessor才能注册进去
+ * （Applicationcontext比 beanFactory 加入了一些更好使用的功能。而且 beanFactory 的许多功能需要通过编程实现而 Applicationcontext 可以通过配置实现。
+ * 比如后处理 bean ，Applicationcontext 直接配置在配置文件即可而 beanFactory 这要在代码中显示的写出来才可以被容器识别。 ）
  *
  * 3.beanFactory主要是面对与 spring 框架的基础设施，面对 spring 自己。而 Applicationcontex 主要面对与 spring 使用的开发者。基本都会使用 Applicationcontex 并非 beanFactory。
  * 4.同时也继承了容器的高级功能，如：MessageSource（国际化资源接口）、ResourceLoader（资源加载接口）、ApplicationEventPublisher（应用事件发布接口）等
+ *
+ *
+ *
+ *
+ * Spring 可以注册多个Bean的后置处理器，是按照注册的顺序进行调用的。若想定制顺序，可以实现@Order或者实现Order接口~
  */
 public interface BeanFactory {
 
