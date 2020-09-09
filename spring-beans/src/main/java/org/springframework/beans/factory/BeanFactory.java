@@ -172,16 +172,28 @@ public interface BeanFactory {
 	 * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
 	 * will return the factory, not the instance returned by the factory.
 	 */
+  //对FactoryBean的转义定义，因为如果使用bean的名字检索FactoryBean得到的对象是工厂生成的对象，
+  //如果需要得到工厂本身，需要转义
 	String FACTORY_BEAN_PREFIX = "&";
 
 
 	/**
 	 * Return an instance, which may be shared or independent, of the specified bean.
-	 * <p>This method allows a Spring BeanFactory to be used as a replacement for the
+   * 返回指定bean的一个实例，该实例可以是共享的，也可以是独立的
+
+   * <p>This method allows a Spring BeanFactory to be used as a replacement for the
 	 * Singleton or Prototype design pattern. Callers may retain references to
 	 * returned objects in the case of Singleton beans.
+   *
+   * 这种方法允许使用Spring BeanFactory替代单例或原型设计模式。
+   * 对于单例bean，调用者可以保留对返回对象的引用。
+   *
 	 * <p>Translates aliases back to the corresponding canonical bean name.
-	 * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   * 将别名转换回相应的规范bean名称。
+   *
+   * <p>Will ask the parent factory if the bean cannot be found in this factory instance.
+   * 如果这个工厂中找不到，将去父工厂中寻找
+   *
 	 * @param name the name of the bean to retrieve
 	 * @return an instance of the bean
 	 * @throws NoSuchBeanDefinitionException if there is no bean with the specified name

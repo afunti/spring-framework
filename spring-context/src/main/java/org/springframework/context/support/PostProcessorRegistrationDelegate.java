@@ -48,7 +48,8 @@ final class PostProcessorRegistrationDelegate {
 
         // Invoke BeanDefinitionRegistryPostProcessors first, if any.
         // 这个doc说明很清楚：不管怎么样，先执行BeanDefinitionRegistryPostProcessors
-        // 需要注意的是BeanDefinitionRegistryPostProcessors 为 BeanFactoryPostProcessor 的子接口 它新增了方法：void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
+        // 需要注意的是BeanDefinitionRegistryPostProcessors 为 BeanFactoryPostProcessor 的子接口
+        // 它新增了方法：void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry)
         // BeanFactoryPostProcessor 的方法为;void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException;
         // 所以BeanDefinitionRegistryPostProcessors，它可以我们介入，改变Bean的一些定义信息
 
@@ -102,7 +103,8 @@ final class PostProcessorRegistrationDelegate {
 
             // 此处缓冲起来（需要注意的是，是排序后，再放进去的 这样是最好的）
             registryProcessors.addAll(currentRegistryProcessors);
-            // 这个方法很简单，就是吧currentRegistryProcessors里面所有的处理器for循环一个个的执行掉(本处只有ConfigurationClassPostProcessor，详见我的另一篇专门博文讲解)
+            // 这个方法很简单，就是吧currentRegistryProcessors里面所有的处理器for循环一个个的执行掉
+            // (本处只有ConfigurationClassPostProcessor，详见我的另一篇专门博文讲解)
             invokeBeanDefinitionRegistryPostProcessors(currentRegistryProcessors, registry);
 
             // 此处把当前持有的执行对象给清空了，需要注意。以方便装载后续执行的处理器们

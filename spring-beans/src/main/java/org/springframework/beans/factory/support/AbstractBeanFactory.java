@@ -199,6 +199,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			String name, @Nullable Class<T> requiredType, @Nullable Object[] args, boolean typeCheckOnly)
 			throws BeansException {
 
+	    /**
+     * 获取 name 对应的真正 beanName
+     *
+     * 因为传入的参数可以是 alias，也可能是 FactoryBean 的 name，所以需要进行解析，包含以下内容：
+     * 1. 如果是 FactoryBean，则去掉 “&” 前缀
+     * 2. 沿着引用链获取 alias 对应的最终 name
+     */
 		String beanName = transformedBeanName(name);
 		Object bean;
 

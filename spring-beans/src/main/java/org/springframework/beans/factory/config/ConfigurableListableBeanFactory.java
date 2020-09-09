@@ -28,12 +28,19 @@ import java.util.Iterator;
  * In addition to {@link ConfigurableBeanFactory}, it provides facilities to
  * analyze and modify bean definitions, and to pre-instantiate singletons.
  *
+ *  Configuration接口将由listable bean 工厂实现，
+ *  除了{@link ConfigurableBeanFactory}，它还提供了分析和修改bean定义以及预实例化单例实例的工具。
+ *
  * <p>This subinterface of {@link org.springframework.beans.factory.BeanFactory}
  * is not meant to be used in normal application code: Stick to
  * {@link org.springframework.beans.factory.BeanFactory} or
  * {@link org.springframework.beans.factory.ListableBeanFactory} for typical
  * use cases. This interface is just meant to allow for framework-internal
  * plug'n'play even when needing access to bean factory configuration methods.
+ *
+ * BeanFactory的这个子接口并不打算在普通的应用程序代码中使用：
+ * 对于典型的用例，请坚持使用BeanFactory或ListableBeanFactory。
+ * 这个接口只是为了允许框架内部即插即用，即使需要访问BeanFactory配置方法。
  *
  * @author Juergen Hoeller
  * @since 03.11.2003
@@ -71,13 +78,13 @@ public interface ConfigurableListableBeanFactory
 	 * e.g. a dependency of type ApplicationContext resolved to the
 	 * ApplicationContext instance that the bean is living in.
    *
-   * 这适用于工厂/上下文引用，这些引用应该是可自动连接的，但在工厂中没有定义为bean：
+   * 这适用于factory/context引用，这些引用应该是可自动注入（@Autowired）的，但在工厂中没有定义为bean：
    * 例如，将一个ApplicationContext类型的依赖 解析为bean所在的ApplicationContext实例。
    *
 	 * <p>Note: There are no such default types registered in a plain BeanFactory,
 	 * not even for the BeanFactory interface itself.
    *
-   * 注意：在普通BeanFactory中没有注册此类默认类型，甚至对BeanFactory接口本身也没有
+   * 注意：在普通BeanFactory中没有注册默认类型，甚至对BeanFactory接口本身也没有默认类型
    *
 	 * @param dependencyType the dependency type to register. This will typically
 	 * be a base interface such as BeanFactory, with extensions of it resolved
