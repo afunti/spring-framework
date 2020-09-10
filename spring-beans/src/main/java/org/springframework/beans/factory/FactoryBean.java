@@ -131,6 +131,22 @@ public interface FactoryBean<T> {
 	 * @return an instance of the bean (can be {@code null})
 	 * @throws Exception in case of creation errors
 	 * @see FactoryBeanNotInitializedException
+   *
+   *
+   * 从它定义的接口可以看出，FactoryBean表现的是一个工厂的职责。
+   * 即一个Bean A如果实现了FactoryBean接口，那么A就变成了一个工厂，根据A的名称获取到的实际上是工厂调用getObject()返回的对象，而不是A本身，如果要获取工厂A自身的实例，那么需要在名称前面加上'&'符号。
+   * getObject('name')返回工厂中的实例
+   * getObject('&name')返回工厂本身的实例
+   * 通常情况下，bean 无须自己实现工厂模式，Spring 容器担任了工厂的 角色；但少数情况下，容器中的 bean 本身就是工厂，作用是产生其他 bean 实例。
+   * 由工厂 bean 产生的其他 bean 实例，不再由 Spring 容器产生，因此与普通 bean 的配置不同，不再需要提供 class 元素。
+   *
+   * 说了这么多，为什么要有FactoryBean这个东西呢，有什么具体的作用吗？
+   * FactoryBean在Spring中最为典型的一个应用就是用来创建AOP的代理对象。
+   * 我们知道AOP实际上是Spring在运行时创建了一个代理对象，也就是说这个对象，是我们在运行时创建的，而不是一开始就定义好的，这很符合工厂方法模式。
+   * 更形象地说，AOP代理对象通过Java的反射机制，在运行时创建了一个代理对象，在代理对象的目标方法中根据业务要求织入了相应的方法。
+   * 这个对象在Spring中就是——ProxyFactoryBean。
+   * 所以，FactoryBean为我们实例化Bean提供了一个更为灵活的方式，我们可以通过FactoryBean创建出更为复杂的Bean实例
+   *
 	 */
 	@Nullable
 	T getObject() throws Exception;
