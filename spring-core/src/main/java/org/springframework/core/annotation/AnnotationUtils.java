@@ -16,20 +16,6 @@
 
 package org.springframework.core.annotation;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.annotation.AnnotationTypeMapping.MirrorSets.MirrorSet;
 import org.springframework.core.annotation.MergedAnnotation.Adapt;
@@ -39,13 +25,19 @@ import org.springframework.util.ConcurrentReferenceHashMap;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
+import java.util.*;
+
 /**
  * General utility methods for working with annotations, handling meta-annotations,
  * bridge methods (which the compiler generates for generic declarations) as well
  * as super methods (for optional <em>annotation inheritance</em>).
+ * 用于处理注释、处理元注释、桥方法（编译器为泛型声明生成）以及超级方法（用于可选注释继承）的通用实用方法
  *
  * <p>Note that most of the features of this class are not provided by the
  * JDK's introspection facilities themselves.
+ *  注意，这个类的大多数特性不是由JDK的自省功能本身提供的
  *
  * <p>As a general rule for runtime-retained application annotations (e.g. for
  * transaction control, authorization, or service exposure), always use the
@@ -56,16 +48,26 @@ import org.springframework.util.StringUtils;
  * and a <em>find</em> lookup in the entire inheritance hierarchy of the given
  * method ({@link #findAnnotation(Method, Class)}).
  *
+ * 作为运行时保留的应用程序注释的一般规则（例如，对于事务控制、授权或服务公开），始终使用该类上的查找方法（例如#findAnnotation（方法，类）或#getAnnotation（方法，类）），
+ * 而不是JDK中的纯注释查找方法。
+ * 您仍然可以显式地选择仅在给定的类级别上进行get查找（#getAnnotation（Method，class））
+ * 还是在给定方法的整个继承层次结构中的查找查找查找（#findAnnotation（Method，class））
+ *
  * <h3>Terminology</h3>
+ * 术语
+ *
  * The terms <em>directly present</em>, <em>indirectly present</em>, and
  * <em>present</em> have the same meanings as defined in the class-level
  * javadoc for {@link AnnotatedElement} (in Java 8).
+ * 术语directly present、indirectly present、present的含义与AnnotatedElement的java doc文档中在class-level级别定义的含义相同
  *
  * <p>An annotation is <em>meta-present</em> on an element if the annotation
  * is declared as a meta-annotation on some other annotation which is
  * <em>present</em> on the element. Annotation {@code A} is <em>meta-present</em>
  * on another annotation if {@code A} is either <em>directly present</em> or
  * <em>meta-present</em> on the other annotation.
+ *
+ * 如果注释被声明为元素上存在的其他注释的元注释，则该注释在元素上是元存在的。如果{@codea}在另一个注释上直接存在或元存在，则注释{@codea}在另一个注释上是元存在的
  *
  * <h3>Meta-annotation Support</h3>
  * <p>Most {@code find*()} methods and some {@code get*()} methods in this class

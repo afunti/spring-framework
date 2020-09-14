@@ -163,6 +163,11 @@ import org.springframework.lang.Nullable;
  *
  *
  * Spring 可以注册多个Bean的后置处理器，是按照注册的顺序进行调用的。若想定制顺序，可以实现@Order或者实现Order接口~
+ *
+ * beanFactory只实现了容器的基本功能。而ApplicationContext作为容器的高级形态而存在，在简单容器的基础上增加了许多面向框架的特性，同时对应用环境做了许多食品
+ *
+ * beanFactory提现了Spring为提供给用户使用的IoC容器锁设定的最基本的功能规范。作为一个最基本的接口类出现在spring的ioc容器体系中。
+ *
  */
 public interface BeanFactory {
 

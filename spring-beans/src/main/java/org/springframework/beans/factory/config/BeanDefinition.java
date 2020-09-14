@@ -27,9 +27,12 @@ import org.springframework.lang.Nullable;
  * constructor argument values, and further information supplied by
  * concrete implementations.
  *
+ * BeanDefinition描述了一个bean实例，它具有属性值、构造函数参数值和具体实现提供的进一步信息
+ *
  * <p>This is just a minimal interface: The main intention is to allow a
  * {@link BeanFactoryPostProcessor} to introspect and modify property values
  * and other bean metadata.
+ * 这只是一个最小的接口：主要目的是允许BeanFactoryPostProcessor对属性值和其他bean元数据进行内省和修改
  *
  * @author Juergen Hoeller
  * @author Rob Harrop
@@ -37,6 +40,11 @@ import org.springframework.lang.Nullable;
  * @see ConfigurableListableBeanFactory#getBeanDefinition
  * @see org.springframework.beans.factory.support.RootBeanDefinition
  * @see org.springframework.beans.factory.support.ChildBeanDefinition
+ *
+ *
+ * BeanDefinition 抽象了我们对bean的定义，是让容器起作用的主要数据类型。
+ * 就是对依赖反转模式中管理的对象依赖关系的数据抽象，也是容器实现依赖反转功能的核心数据结构，依赖反转都是围绕这个beanDefinition的处理来完成的
+ *
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
@@ -162,10 +170,18 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 
 	/**
 	 * Set whether this bean is a candidate for getting autowired into some other bean.
+   * 设置此bean是否是自动连接到其他bean的候选项
+   *
 	 * <p>Note that this flag is designed to only affect type-based autowiring.
-	 * It does not affect explicit references by name, which will get resolved even
+   * 请注意，此标志仅用于影响基于类型的自动注入
+   *
+   * It does not affect explicit references by name, which will get resolved even
 	 * if the specified bean is not marked as an autowire candidate. As a consequence,
 	 * autowiring by name will nevertheless inject a bean if the name matches.
+   *
+   * 它不影响按名称的显式引用，即使指定的bean没有标记为autowire候选者，也会解析这些引用。
+   * 因此，如果名称匹配，按名称自动连接仍将注入一个bean
+   *
 	 */
 	void setAutowireCandidate(boolean autowireCandidate);
 
