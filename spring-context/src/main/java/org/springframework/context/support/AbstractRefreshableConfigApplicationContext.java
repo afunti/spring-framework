@@ -30,6 +30,10 @@ import org.springframework.util.StringUtils;
  * {@link FileSystemXmlApplicationContext}, as well as
  * {@link org.springframework.web.context.support.XmlWebApplicationContext}.
  *
+ * bstractRefreshableApplicationContext子类，添加对指定配置位置的公共处理。
+ * 用作基于XML的应用程序上下文实现
+ * （如ClassPathXmlApplicationContext和FileSystemXmlApplicationContext以及XmlWebApplicationContext）的基类
+ *
  * @author Juergen Hoeller
  * @since 2.5.2
  * @see #setConfigLocation

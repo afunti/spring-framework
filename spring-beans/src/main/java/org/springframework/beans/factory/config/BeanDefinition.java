@@ -45,6 +45,7 @@ import org.springframework.lang.Nullable;
  * BeanDefinition 抽象了我们对bean的定义，是让容器起作用的主要数据类型。
  * 就是对依赖反转模式中管理的对象依赖关系的数据抽象，也是容器实现依赖反转功能的核心数据结构，依赖反转都是围绕这个beanDefinition的处理来完成的
  *
+ *
  */
 public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
 

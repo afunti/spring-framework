@@ -16,26 +16,15 @@
 
 package org.springframework.beans.factory.support;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.beans.factory.BeanCreationNotAllowedException;
-import org.springframework.beans.factory.BeanCurrentlyInCreationException;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.*;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.core.SimpleAliasRegistry;
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Generic registry for shared bean instances, implementing the
@@ -175,23 +164,38 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param beanName the name of the bean to look for
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
+   *
+   * 1、 目标 bean 实例已经存在，说明之前已经实例化过，直接返回即可。
+   * 2、目标 bean 实例不存在，且未处于正在创建中的状态，直接返回 null，接下去会执行实例化进程。
+   * 3、目标 bean 实例不存在，但处于正在创建中的状态，说明存在循环依赖的情况。
+   *针对第 3 种情况，Spring 定义了 DefaultSingletonBeanRegistry#earlySingletonObjects 属性，记录那些那些被创建出来还未执行初始化的对象。
+   * 毕竟，依赖注入的过程是将一个对象的引用赋值给另一个对象的某个属性，并不要求被注入的对象已经完成了初始化。
+   * 简单而言，就是先把对象间的依赖关系建立好，再去初始化各个对象，这一机制能够在一些场景下破解循环依赖的环路。
+   *
+   *A 和 B 循环引用为例，我们可以先把 A 和 B 的对象先创建完成，期间相互引用的属性先置为 null，这样就不会阻碍这两个对象的创建过程，然后再初始化相互引用的属性值
 	 */
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
+      // 尝试获取对应的单例对象
 		Object singletonObject = this.singletonObjects.get(beanName);
+      // 实例不存在 && 正在创建中
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
 			synchronized (this.singletonObjects) {
+          // 尝试获取早期的实例，此时的实例还未完成初始化
 				singletonObject = this.earlySingletonObjects.get(beanName);
+          // 如果早期的实例不存在，且允许提前引用，则基于对应的 ObjectFactory 创建
 				if (singletonObject == null && allowEarlyReference) {
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
 						singletonObject = singletonFactory.getObject();
+              // earlySingletonObjects 和 singletonFactories 是互斥的
 						this.earlySingletonObjects.put(beanName, singletonObject);
 						this.singletonFactories.remove(beanName);
 					}
 				}
 			}
 		}
+      // 返回目标单例对象，可能为 nul
 		return singletonObject;
 	}
 
@@ -330,7 +334,9 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Return whether the specified singleton bean is currently in creation
 	 * (within the entire factory).
-	 * @param beanName the name of the bean
+   * 返回指定的singleton bean当前是否正在创建中(在整个工厂中)
+   *
+   * @param beanName the name of the bean
 	 */
 	public boolean isSingletonCurrentlyInCreation(String beanName) {
 		return this.singletonsCurrentlyInCreation.contains(beanName);
@@ -399,6 +405,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Register a dependent bean for the given bean,
 	 * to be destroyed before the given bean is destroyed.
+   * 为给定bean注册一个依赖bean，在销毁给定bean之前销毁它。
+   *
 	 * @param beanName the name of the bean
 	 * @param dependentBeanName the name of the dependent bean
 	 */
@@ -423,6 +431,8 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	/**
 	 * Determine whether the specified dependent bean has been registered as
 	 * dependent on the given bean or on any of its transitive dependencies.
+   * 确定指定的依赖bean是否已注册为依赖于给定bean或其任何可传递依赖项
+   *
 	 * @param beanName the name of the bean to check
 	 * @param dependentBeanName the name of the dependent bean
 	 * @since 4.0
@@ -619,6 +629,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * any sort of extended singleton creation phase. In particular, subclasses
 	 * should <i>not</i> have their own mutexes involved in singleton creation,
 	 * to avoid the potential for deadlocks in lazy-init situations.
+   *
+   * 向子类和外部协作者公开单例互斥体，
+   * 如果子类执行任何类型的扩展单例创建阶段，那么它们应该在给定对象上同步
+   * 特别是，子类不应该在单例创建中有自己的互斥锁，以避免在惰性初始化情况下出现死锁
 	 */
 	@Override
 	public final Object getSingletonMutex() {

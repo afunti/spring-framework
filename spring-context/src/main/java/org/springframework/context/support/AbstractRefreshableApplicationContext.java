@@ -31,6 +31,8 @@ import java.io.IOException;
  * creating a new internal bean factory instance every time.
  * Typically (but not necessarily), such a context will be driven by
  * a set of config locations to load bean definitions from.
+  *ApplicationContext实现的基类，这些实现应该支持对refresh（）的多次调用，每次都创建一个新的内部bean工厂实例
+ * 通常（但不一定），这样的上下文将由一组配置位置驱动，以便从中加载bean定义。
  *
  * <p>The only method to be implemented by subclasses is {@link #loadBeanDefinitions},
  * which gets invoked on each refresh. A concrete implementation is supposed to load
@@ -38,11 +40,18 @@ import java.io.IOException;
  * {@link org.springframework.beans.factory.support.DefaultListableBeanFactory},
  * typically delegating to one or more specific bean definition readers.
  *
+ * 子类实现的唯一方法是loadBeanDefinitions，它在每次刷新时都被调用。
+ * 一个具体的实现应该将bean定义加载到给定的DefaultListableBeanFactory中，通常委托给一个或多个特定的bean定义读取器
+ *
  * <p><b>Note that there is a similar base class for WebApplicationContexts.</b>
  * {@link org.springframework.web.context.support.AbstractRefreshableWebApplicationContext}
  * provides the same subclassing strategy, but additionally pre-implements
  * all context functionality for web environments. There is also a
  * pre-defined way to receive config locations for a web context.
+ *
+ * 请注意，WebApplicationContexts有一个类似的基类。
+ * org.springframework.web.context.support.AbstractRefreshableWebApplicationContext提供相同的子类化策略，
+ * 但另外预先实现了web环境的所有上下文功能。还有一种预定义的方法来接收web上下文的配置位置。
  *
  * <p>Concrete standalone subclasses of this base class, reading in a
  * specific bean definition format, are {@link ClassPathXmlApplicationContext}
@@ -50,6 +59,10 @@ import java.io.IOException;
  * common {@link AbstractXmlApplicationContext} base class;
  * {@link org.springframework.context.annotation.AnnotationConfigApplicationContext}
  * supports {@code @Configuration}-annotated classes as a source of bean definitions.
+ *
+ * 这个基类的具体独立子类以特定的bean定义格式读取，分别是ClassPathXmlApplicationContext和FileSystemXmlApplicationContext，
+ * 它们都派生自公共AbstractXmlApplicationContext基类；o
+ * rg.springframework.context.annotation.AnnotationConfigApplicationContext支持@Configuration注释类作为bean定义的源
  *
  * @author Juergen Hoeller
  * @author Chris Beams
@@ -121,17 +134,19 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 */
 	@Override
 	protected final void refreshBeanFactory() throws BeansException {
+	    // 如果已经建立了BeanFactory，则销毁并关闭该BeanFactory，保证在refresh以后使用是新建立起来的IOC容器
 		if (hasBeanFactory()) {
 			destroyBeans();
 			closeBeanFactory();
 		}
 		try {
+		    // 构建一个IOC容器供ApplicationContext使用
 			DefaultListableBeanFactory beanFactory = createBeanFactory();
 			beanFactory.setSerializationId(getId());
 			//定制 BeanFactory，是否允许 BeanDefinition 覆盖、是否允许循环引用
 			customizeBeanFactory(beanFactory);
         /**
-         * 加载bean定义，AbstractXmlApplicationContext、AnnotationConfigWebApplicationContext等各种子类实现
+         * 加载BeanDefinition，AbstractXmlApplicationContext、AnnotationConfigWebApplicationContext等各种子类实现
          *  通过 BeanDefinitionReader 解析 xml 文件，解析封装信息到 BeanDefinition，并将其 register 到 BeanFactory 中
          *  以 beanName为key将beanDefinition 存到 DefaultListableBeanFactory#beanDefinitionMap 中
          */
@@ -203,6 +218,10 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowEagerClassLoading
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowCircularReferences
 	 * @see org.springframework.beans.factory.support.DefaultListableBeanFactory#setAllowRawInjectionDespiteWrapping
+   *
+   * getInternalParentBeanFactoryc参考AbstractApplicationContext中的实现，
+   * 会根据容器已有的双亲IoC容器信息来生成DefaultListableBeanFactory的双亲IoC容器
+   *
 	 */
 	protected DefaultListableBeanFactory createBeanFactory() {
 		return new DefaultListableBeanFactory(getInternalParentBeanFactory());

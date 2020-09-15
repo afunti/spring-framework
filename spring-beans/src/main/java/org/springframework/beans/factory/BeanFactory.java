@@ -168,6 +168,8 @@ import org.springframework.lang.Nullable;
  *
  * beanFactory提现了Spring为提供给用户使用的IoC容器锁设定的最基本的功能规范。作为一个最基本的接口类出现在spring的ioc容器体系中。
  *
+ *
+ *
  */
 public interface BeanFactory {
 

@@ -28,12 +28,19 @@ import org.springframework.lang.Nullable;
  * with custom further scopes, registered for a
  * {@link ConfigurableBeanFactory#registerScope(String, Scope) specific key}.
  *
+ *ConfigurableBeanFactory使用的策略接口，表示用于保存bean实例的目标范围。
+ *这允许扩展BeanFactory的标准作用域“singleton”和“prototype”，并为特定的键注册自定义的其他作用域
+ *
+ *
  * <p>{@link org.springframework.context.ApplicationContext} implementations
  * such as a {@link org.springframework.web.context.WebApplicationContext}
  * may register additional standard scopes specific to their environment,
  * e.g. {@link org.springframework.web.context.WebApplicationContext#SCOPE_REQUEST "request"}
  * and {@link org.springframework.web.context.WebApplicationContext#SCOPE_SESSION "session"},
  * based on this Scope SPI.
+ *
+ *  org.springframework.context.ApplicationContext实现，
+ * 例如org.springframework.web.context.WebApplicationContext可根据该范围SPI注册特定于其环境的附加标准作用域，例如“request”和“session”
  *
  * <p>Even if its primary use is for extended scopes in a web environment,
  * this SPI is completely generic: It provides the ability to get and put
@@ -42,12 +49,18 @@ import org.springframework.lang.Nullable;
  * {@code get} and {@code remove} methods will identify the
  * target object in the current scope.
  *
+ * 即使它主要用于web环境中的扩展作用域，这个SPI也是完全通用的：
+ * 它提供从任何底层存储机制（如HTTP会话或自定义会话机制）获取和放置对象的能力。
+ * 传入此类的get和remove方法的名称将标识当前范围中的目标对象
+ *
  * <p>{@code Scope} implementations are expected to be thread-safe.
  * One {@code Scope} instance can be used with multiple bean factories
  * at the same time, if desired (unless it explicitly wants to be aware of
  * the containing BeanFactory), with any number of threads accessing
  * the {@code Scope} concurrently from any number of factories.
  *
+ * 作用域实现应该是线程安全的。
+ * 如果需要的话，一个作用域实例可以同时用于多个bean工厂（除非它明确希望知道包含的BeanFactory），任何数量的线程同时从任意数量的工厂访问范围
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @since 2.0

@@ -498,6 +498,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		return this.applicationListeners;
 	}
 
+    /**
+     *  Ioc容器初始化过程中，BeanDefinition资源的定位、读入和注册的过程是分开进行的，这也是解耦的一个体现
+     *
+     *  refresh 执行过程为Bean的生命周期管理提供了条件，载入BeanDefinition的入口
+     *  是对ApplicationContext进行初始化初始化的模板或执行提纲
+     * @throws BeansException
+     * @throws IllegalStateException
+     */
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
 		synchronized (this.startupShutdownMonitor) {
