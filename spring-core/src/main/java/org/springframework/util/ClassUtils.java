@@ -218,7 +218,8 @@ public abstract class ClassUtils {
 	 * Furthermore, it is also capable of resolving inner class names in Java source
 	 * style (e.g. "java.lang.Thread.State" instead of "java.lang.Thread$State").
    *
-   *  Class.forName() 的替代品，并且可以以java的命名方式解析内部类.如 返回 "java.lang.Thread.State" 而不是 "java.lang.Thread$State"
+   *  Class.forName() 的替代品，并且可以以java的命名方式解析内部类.
+   *  如 返回 "java.lang.Thread.State" 而不是 "java.lang.Thread$State"
    *
    * 最终还是调用的sdk的 class.forName(),但是对内部类做了处理
    *
@@ -1173,7 +1174,7 @@ public abstract class ClassUtils {
 	}
 
 	/**
-   * 统计给定方法methodName 在指定的类clazz和它的父类中的数量，
+   * 统计给定方法的名称（methodName） 在指定的类clazz和它的父类中的数量，
    * 包含非public的方法
    *
 	 * Return the number of methods with a given name (with any argument types),

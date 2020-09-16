@@ -1118,7 +1118,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 */
 	public void validate() throws BeanDefinitionValidationException {
 		if (hasMethodOverrides() && getFactoryMethodName() != null) {
-			throw new BeanDefinitionValidationException(
+		    // 无法将工厂方法与容器生成的方法重写相结合：工厂方法必须创建具体的bean实例。
+        throw new BeanDefinitionValidationException(
 					"Cannot combine factory method with container-generated method overrides: " +
 					"the factory method must create the concrete bean instance.");
 		}
@@ -1143,6 +1144,9 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	/**
 	 * Validate and prepare the given method override.
 	 * Checks for existence of a method with the specified name,
+   *
+   * 验证并准备给定的方法重写。检查是否存在具有指定名称的方法，如果找不到，则将其标记为未重载。
+   *
 	 * marking it as not overloaded if none found.
 	 * @param mo the MethodOverride object to validate
 	 * @throws BeanDefinitionValidationException in case of validation failure

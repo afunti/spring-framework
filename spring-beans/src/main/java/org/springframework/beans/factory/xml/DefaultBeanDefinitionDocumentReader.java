@@ -16,18 +16,8 @@
 
 package org.springframework.beans.factory.xml;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -38,6 +28,15 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Default implementation of the {@link BeanDefinitionDocumentReader} interface that
@@ -144,9 +143,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				}
 			}
 		}
-
+      //xml解析元素处理之前的逻辑 可以处理任何自定义元素类型来扩展XML
 		preProcessXml(root);
+		// 解析beanDefinition，并注册到ioc容器中
 		parseBeanDefinitions(root, this.delegate);
+		// 解析BeanDefinition之后
 		postProcessXml(root);
 
 		this.delegate = parent;
@@ -164,6 +165,8 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Parse the elements at the root level in the document:
 	 * "import", "alias", "bean".
 	 * @param root the DOM root element of the document
+   *
+   *  解析xml根级别的元素如"import", "alias", "bean"；
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
 		if (delegate.isDefaultNamespace(root)) {
@@ -191,9 +194,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			importBeanDefinitionResource(ele);
 		}
 		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
+		    // 解析处理别名节点
 			processAliasRegistration(ele);
 		}
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
+		    // 解析bean 节点，并注册到ioc中
 			processBeanDefinition(ele, delegate);
 		}
 		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
@@ -303,11 +308,18 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * and registering it with the registry.
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+      /**
+       * BeanDefinitionHolder是对BeanDefinition对象的封装，封装了BeanDefinition，Bean的名字和别名。
+       * 用它来完成想Ioc容器注册。
+       * 得到这个BeanDefinitionHolder就意味着BeanDefinition是通过BeanDefinitionParserDelegate对xml元素的信息按照Spring的Bean
+       * 规则进行解析得到的
+       */
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
+          // 向Ioc容器注册BeanDefinition
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {
@@ -329,6 +341,10 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Implementors have access to the parser's bean definition reader and the
 	 * underlying XML resource, through the corresponding accessors.
 	 * @see #getReaderContext()
+   *
+   * 在我们开始处理bean定义之前，允许通过首先处理任何自定义元素类型来扩展XML。此方法是XML的任何其他自定义预处理的自然扩展点。
+   * 默认实现为空。例如，子类可以重写此方法，将自定义元素转换为标准的springbean定义。
+   * 实现者可以通过相应的访问器访问解析器的bean定义读取器和底层XML资源
 	 */
 	protected void preProcessXml(Element root) {
 	}
@@ -342,6 +358,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * Implementors have access to the parser's bean definition reader and the
 	 * underlying XML resource, through the corresponding accessors.
 	 * @see #getReaderContext()
+   *
+   * 在我们处理完bean定义之后，允许通过最后处理任何自定义元素类型来扩展XML。此方法是XML的任何其他自定义后处理的自然扩展点。
+   * 默认实现为空。例如，子类可以重写此方法，将自定义元素转换为标准的springbean定义。
+   * 实现者可以通过相应的访问器访问解析器的bean定义读取器和底层XML资源。
+   *
 	 */
 	protected void postProcessXml(Element root) {
 	}

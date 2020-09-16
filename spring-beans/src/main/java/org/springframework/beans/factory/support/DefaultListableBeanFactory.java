@@ -949,7 +949,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
         Assert.hasText(beanName, "Bean name must not be empty");
         Assert.notNull(beanDefinition, "BeanDefinition must not be null");
-
+// 是AbstractBeanDefinition的话，
+        //无法将工厂方法与容器生成的方法重写相结合：工厂方法必须创建具体的bean实例。
         if (beanDefinition instanceof AbstractBeanDefinition) {
             try {
                 ((AbstractBeanDefinition) beanDefinition).validate();
@@ -959,7 +960,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             }
         }
 
+        //beanDefinitionMap是 ConcurrentHashMap，控制并发，注册过程中需要保持数据的一致性
         BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+        // 检查beanName是否已经存在IOC容器中，如果已经存在，但是又不允许覆盖，那么抛出异常
         if (existingDefinition != null) {
             if (!isAllowBeanDefinitionOverriding()) {
                 throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
@@ -997,6 +1000,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
                 }
             } else {
                 // Still in startup registration phase
+                // 如果还在启动中，则将BeanName直接放入Ioc容器持有的beanDefinitionMap中
+                // ，并在beanDefinitionNames中加入BeanName,
+                // 从manualSingletonNames中移除当前BeanName【手动注册的集合中移除？】
                 this.beanDefinitionMap.put(beanName, beanDefinition);
                 this.beanDefinitionNames.add(beanName);
                 removeManualSingletonName(beanName);
@@ -1047,6 +1053,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
      * and {@link MergedBeanDefinitionPostProcessor#resetBeanDefinition} on the
      * given bean and on all bean definitions that have the given bean as parent.
      *
+     *置给定bean的所有bean定义缓存，包括从该bean派生的bean的缓存。
+     * 在替换或删除现有bean定义后调用，
+     * 触发clearMergedBeanDefinition、destroySingleton
+     * 和MergedBeanDefinitionPostProcessor.resetBeanDefinition在给定的bean和所有以给定bean为父级的bean定义上。
      * @param beanName the name of the bean to reset
      * @see #registerBeanDefinition
      * @see #removeBeanDefinition
@@ -1114,7 +1124,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
     /**
      * Update the factory's internal set of manual singleton names.
-     *
+     * 更新工厂的内部手动单例名称集。
      * @param action    the modification action
      * @param condition a precondition for the modification action
      *                  (if this condition does not apply, the action can be skipped)
@@ -1124,6 +1134,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             // Cannot modify startup-time collection elements anymore (for stable iteration)
             synchronized (this.beanDefinitionMap) {
                 if (condition.test(this.manualSingletonNames)) {
+                    // new 一个新的LinkedHashSet 防止并发？问题？？
                     Set<String> updatedSingletons = new LinkedHashSet<>(this.manualSingletonNames);
                     action.accept(updatedSingletons);
                     this.manualSingletonNames = updatedSingletons;
