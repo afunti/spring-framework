@@ -279,16 +279,26 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * Override settings in this bean definition (presumably a copied parent
 	 * from a parent-child inheritance relationship) from the given bean
 	 * definition (presumably the child).
+   * 从给定的bean定义（可能是子bean）重写此bean定义中的设置（可能是从父子继承关系复制的父级）
+   *
 	 * <ul>
 	 * <li>Will override beanClass if specified in the given bean definition.
-	 * <li>Will always take {@code abstract}, {@code scope},
+   * 如果在给定的bean定义中指定，将重写beanClass。
+   *
+   * <li>Will always take {@code abstract}, {@code scope},
 	 * {@code lazyInit}, {@code autowireMode}, {@code dependencyCheck},
 	 * and {@code dependsOn} from the given bean definition.
+   * 始终从给定的bean定义中获取abstract、scope、lazyInit、autowireMode、dependencyCheck和dependsOn。
+   *
 	 * <li>Will add {@code constructorArgumentValues}, {@code propertyValues},
 	 * {@code methodOverrides} from the given bean definition to existing ones.
+   * 将从给定的bean定义中添加constructorArgumentValues、PropertyValue、methodOverrides添加到现有的定义中
+   *
 	 * <li>Will override {@code factoryBeanName}, {@code factoryMethodName},
 	 * {@code initMethodName}, and {@code destroyMethodName} if specified
 	 * in the given bean definition.
+   * 如果在给定的bean定义中指定，将重写factoryBeanName、factoryMethodName、initMethodName和destroyMethodName
+   *
 	 * </ul>
 	 */
 	public void overrideFrom(BeanDefinition other) {
@@ -1133,11 +1143,19 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
    * Validate and prepare the method overrides defined for this bean.
 	 * Checks for existence of a method with the specified name.
 	 * @throws BeanDefinitionValidationException in case of validation failure
+   *
+   * Spring 中并不存在 <override-method /> 标签，这里的 override 指的是 <lookup-method/> 和 <replaced-method/> 这两个标签。
+   * 之前解析这两个标签时是将标签配置以 MethodOverride 对象的形式记录在 AbstractBeanDefinition#methodOverrides 属性中，
+   * 而这里的处理逻辑主要是逐一检查被覆盖的方法是否真实存在，如果不存在则说明配置不合法，需要抛出异常
+   * 如果存在唯一的方法版本则说明覆盖是明确的，标记 MethodOverride#overloaded 为 false 表明后期无需再依据参数类型和个数进行推测
+   *
 	 */
 	public void prepareMethodOverrides() throws BeanDefinitionValidationException {
 		// Check that lookup methods exist and determine their overloaded status.
+      // 检查lookup是否存在 以及确定他们的 overloaded 状态
 		if (hasMethodOverrides()) {
-			getMethodOverrides().getOverrides().forEach(this::prepareMethodOverride);
+        // 获取之前解析的 <lookup-method/> 和 <replaced-method/> 标签配置，并逐一应用 prepareMethodOverride 方法
+        getMethodOverrides().getOverrides().forEach(this::prepareMethodOverride);
 		}
 	}
 
@@ -1152,15 +1170,22 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @throws BeanDefinitionValidationException in case of validation failure
 	 */
 	protected void prepareMethodOverride(MethodOverride mo) throws BeanDefinitionValidationException {
-		int count = ClassUtils.getMethodCountForName(getBeanClass(), mo.getMethodName());
+      // 获取指定类中指定方法的个数
+      int count = ClassUtils.getMethodCountForName(getBeanClass(), mo.getMethodName());
+      // 该类并未定义相应名称的方法
 		if (count == 0) {
 			throw new BeanDefinitionValidationException(
 					"Invalid method override: no method with name '" + mo.getMethodName() +
 					"' on class [" + getBeanClassName() + "]");
-		}
+    }
+    // 该类仅定义了唯一一个相应名称的方法
 		else if (count == 1) {
-			// Mark override as not overloaded, to avoid the overhead of arg type checking.
-        // 将override标记为not overloaded，以避免arg类型检查的开销。
+        // Mark override as not overloaded, to avoid the overhead of arg type checking.
+        // 将override标记为not overloaded，以避免arg类型检查的开销。【标记 MethodOverride 暂未被重载，避免参数类型检查的开销】
+        /**
+         * 如果一个方法存在多个重载版本，那么在调用及增强的时候还需要根据参数类型进行匹配来确认最终调用的方法版本，
+         * 如果方法未被重载，也就是对应这里的只有一个版本，就在设置重载标识为 false，后续可以直接定位方法
+         */
         mo.setOverloaded(false);
 		}
 	}

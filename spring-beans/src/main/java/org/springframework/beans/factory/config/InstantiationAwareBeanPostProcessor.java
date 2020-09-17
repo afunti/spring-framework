@@ -51,7 +51,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
 	/**
    *
-   * 实例化之前增强
+   * 实例化之前增强 是对 bean 定义进行修改的最后机会
    *
 	 * Apply this BeanPostProcessor <i>before the target bean gets instantiated</i>.
 	 * The returned bean object may be a proxy to use instead of the target bean,
@@ -82,6 +82,8 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
+   * 实例化 bean 后立即调用，位于属性注入之前
+   *
 	 * Perform operations after the bean has been instantiated, via a constructor or factory method,
 	 * but before Spring property population (from explicit properties or autowiring) occurs.
 	 * <p>This is the ideal callback for performing custom field injection on the given bean
@@ -101,6 +103,9 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
+   *
+   * 在将属性注入 bean 实例前对属性进行处理
+   *
 	 * Post-process the given property values before the factory applies them
 	 * to the given bean, without any need for property descriptors.
 	 * <p>Implementations should return {@code null} (the default) if they provide a custom
@@ -130,6 +135,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
    * 如Required的检查
    * 也允许对值进行修改增加或删除
    *
+   * 该方法已过期，功能同 postProcessProperties
 	 * Post-process the given property values before the factory applies them
 	 * to the given bean. Allows for checking whether all dependencies have been
 	 * satisfied, for example based on a "Required" annotation on bean property setters.

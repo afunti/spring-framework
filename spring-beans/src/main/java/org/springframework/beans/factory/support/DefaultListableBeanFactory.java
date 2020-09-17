@@ -1232,15 +1232,30 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     public Object resolveDependency(DependencyDescriptor descriptor, @Nullable String requestingBeanName,
                                     @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {
 
+        // 获取并初始化参数名称探测器
         descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
+        // 支持 java8 的 Optional
         if (Optional.class == descriptor.getDependencyType()) {
             return createOptionalDependency(descriptor, requestingBeanName);
-        } else if (ObjectFactory.class == descriptor.getDependencyType() ||
+        }
+        // 对应 ObjectFactory 类注入的特殊处理
+        else if (ObjectFactory.class == descriptor.getDependencyType() ||
                 ObjectProvider.class == descriptor.getDependencyType()) {
             return new DependencyObjectProvider(descriptor, requestingBeanName);
-        } else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
+        }
+        // 支持 javax.inject.Provider
+        else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
             return new Jsr330Factory().createDependencyProvider(descriptor, requestingBeanName);
-        } else {
+        }
+        // 通用处理逻辑
+        /**
+         * 对于通用处理逻辑而言，Spring 的解析过程如下：
+
+         以确定的 @Value 注解和集合类型进行解析，如果不是这些类型则获取匹配类型的 bean 实例集合；
+         如果存在多个匹配项则尝试以优先级配置（比如 Primary 或 Priority）确定首选的 bean 实例，否则无需做推断逻辑；
+         检测当前解析得到的 bean 是不是期望的 bean 实例，如果是工厂之类的 bean，则还要继续获取工厂所创建的 bean 实例。
+         */
+        else {
             Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(
                     descriptor, requestingBeanName);
             if (result == null) {
@@ -1250,6 +1265,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         }
     }
 
+    /**
+     * @param descriptor
+     * @param beanName
+     * @param autowiredBeanNames
+     * @param typeConverter
+     * @return
+     * @throws BeansException
+     */
     @Nullable
     public Object doResolveDependency(DependencyDescriptor descriptor, @Nullable String beanName,
                                       @Nullable Set<String> autowiredBeanNames, @Nullable TypeConverter typeConverter) throws BeansException {

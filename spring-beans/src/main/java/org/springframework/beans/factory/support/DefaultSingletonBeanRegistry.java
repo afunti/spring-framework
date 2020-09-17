@@ -63,16 +63,16 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	private static final int SUPPRESSED_EXCEPTIONS_LIMIT = 100;
 
 
-	/** Cache of singleton objects: bean name to bean instance. */
+	/** Cache of singleton objects: bean name to bean instance. 用于记录 beanName 和 bean 实例之间的映射关系。*/
 	private final Map<String, Object> singletonObjects = new ConcurrentHashMap<>(256);
 
-	/** Cache of singleton factories: bean name to ObjectFactory. */
+	/** Cache of singleton factories: bean name to ObjectFactory. 用于记录 beanName 和创建 bean 的工厂 ObjectFactory 对象之间的映射关系*/
 	private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<>(16);
 
-	/** Cache of early singleton objects: bean name to bean instance. */
+	/** Cache of early singleton objects: bean name to bean instance. 也是记录 beanName 和 bean 实例之间的映射关系，不同于 singletonObjects，其中记录的 bean 实例在创建过程中就可以通过 getBean 方法获取到。*/
 	private final Map<String, Object> earlySingletonObjects = new HashMap<>(16);
 
-	/** Set of registered singletons, containing the bean names in registration order. */
+	/** Set of registered singletons, containing the bean names in registration order. 用来记录当前所有已注册的 beanName，按照注册顺序存放。*/
 	private final Set<String> registeredSingletons = new LinkedHashSet<>(256);
 
 	/** Names of beans that are currently in creation. */
@@ -162,13 +162,14 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * <p>Checks already instantiated singletons and also allows for an early
 	 * reference to a currently created singleton (resolving a circular reference).
 	 * @param beanName the name of the bean to look for
-	 * @param allowEarlyReference whether early references should be created or not
+	 * @param allowEarlyReference whether early references should be created or not   是否允许提前引用（允许提前引用，此时的 bean 实例虽然已经被创建，但是还未执行初始化。）
 	 * @return the registered singleton object, or {@code null} if none found
    *
    * 1、 目标 bean 实例已经存在，说明之前已经实例化过，直接返回即可。
    * 2、目标 bean 实例不存在，且未处于正在创建中的状态，直接返回 null，接下去会执行实例化进程。
    * 3、目标 bean 实例不存在，但处于正在创建中的状态，说明存在循环依赖的情况。
-   *针对第 3 种情况，Spring 定义了 DefaultSingletonBeanRegistry#earlySingletonObjects 属性，记录那些那些被创建出来还未执行初始化的对象。
+   *
+   * ß针对第 3 种情况，Spring 定义了 DefaultSingletonBeanRegistry#earlySingletonObjects 属性，记录那些那些被创建出来还未执行初始化的对象。
    * 毕竟，依赖注入的过程是将一个对象的引用赋值给另一个对象的某个属性，并不要求被注入的对象已经完成了初始化。
    * 简单而言，就是先把对象间的依赖关系建立好，再去初始化各个对象，这一机制能够在一些场景下破解循环依赖的环路。
    *
@@ -188,7 +189,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 					if (singletonFactory != null) {
 						singletonObject = singletonFactory.getObject();
-              // earlySingletonObjects 和 singletonFactories 是互斥的
+              // earlySingletonObjects 和 singletonFactories 是互斥的，即一个实例只可能存在于两者中的一个，不可能同时存在
 						this.earlySingletonObjects.put(beanName, singletonObject);
 						this.singletonFactories.remove(beanName);
 					}
@@ -209,9 +210,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "Bean name must not be null");
+      // singletonObjects 用于记录 beanName 与已创建的单例对象之间的映射关系
 		synchronized (this.singletonObjects) {
-			Object singletonObject = this.singletonObjects.get(beanName);
+        // 尝试从缓存中获取已经实例化完成的 bean 实例
+        Object singletonObject = this.singletonObjects.get(beanName);
+        // 缓存未命中，需要进行实例化
 			if (singletonObject == null) {
+          // 目标 bean 正在被销毁，期间不允许创建
 				if (this.singletonsCurrentlyInDestruction) {
 					throw new BeanCreationNotAllowedException(beanName,
 							"Singleton bean creation not allowed while singletons of this factory are in destruction " +
@@ -220,19 +225,23 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+          // 校验 bean 是否正在被实例化
 				beforeSingletonCreation(beanName);
+
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
 				if (recordSuppressedExceptions) {
 					this.suppressedExceptions = new LinkedHashSet<>();
 				}
 				try {
+            // 基于 ObjectFactory 创建 bean 对象
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
 				catch (IllegalStateException ex) {
 					// Has the singleton object implicitly appeared in the meantime ->
 					// if yes, proceed with it since the exception indicates that state.
+            // 同时是否隐式地出现了singleton对象->如果是，则继续它，因为异常指示该状态
 					singletonObject = this.singletonObjects.get(beanName);
 					if (singletonObject == null) {
 						throw ex;
@@ -250,8 +259,10 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					if (recordSuppressedExceptions) {
 						this.suppressedExceptions = null;
 					}
+            // 后置处理，从正在被实例化的实例集合中移除beanName
 					afterSingletonCreation(beanName);
 				}
+          // 新创建的单例，记录到缓存中，并移除中间状态
 				if (newSingleton) {
 					addSingleton(beanName, singletonObject);
 				}

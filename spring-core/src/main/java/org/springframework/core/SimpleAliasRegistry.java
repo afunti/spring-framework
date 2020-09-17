@@ -204,7 +204,7 @@ public class SimpleAliasRegistry implements AliasRegistry {
 	 * Determine the raw name, resolving aliases to canonical names.
    *
    * 确定原始名称，将别名解析为规范名称。
-
+   *
 	 * @param name the user-specified name
 	 * @return the transformed name
 	 */
@@ -213,12 +213,14 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		// Handle aliasing...
 		String resolvedName;
 		do {
+		    // Spring 会通过调用 SimpleAliasRegistryy#registerAlias 方法建立 alias 与 beanName 之间的映射关系，而这一映射关系实际上就是记录在 SimpleAliasRegistry#aliasMap 属性中
 			resolvedName = this.aliasMap.get(canonicalName);
 			if (resolvedName != null) {
 				canonicalName = resolvedName;
 			}
 		}
 		while (resolvedName != null);
+		//因为一个别名所引用的不一定是最终的 beanName，可以是另外一个别名，这个时候就是一个链式引用的场景，我们需要继续沿着引用链往下寻找最终的 beanName
 		return canonicalName;
 	}
 
