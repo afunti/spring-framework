@@ -365,6 +365,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * or a payload object to be turned into a {@link PayloadApplicationEvent})
 	 * @param eventType the resolved event type, if known
 	 * @since 4.2
+   *
+   * 它能发布所有的事件，事件源是Object嘛
 	 */
 	protected void publishEvent(Object event, @Nullable ResolvableType eventType) {
 		Assert.notNull(event, "Event must not be null");
@@ -374,6 +376,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		if (event instanceof ApplicationEvent) {
 			applicationEvent = (ApplicationEvent) event;
 		}
+    // 最终也会被包装成applicationEvent的事件类型，带有一个Payload而已
 		else {
 			applicationEvent = new PayloadApplicationEvent<>(this, event);
 			if (eventType == null) {
@@ -382,14 +385,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		}
 
 		// Multicast right now if possible - or lazily once the multicaster is initialized
+      // 如果早期事件已经被初始化了，那就先放进早期事件里，否则esle那里，就直接发送事件了
 		if (this.earlyApplicationEvents != null) {
 			this.earlyApplicationEvents.add(applicationEvent);
 		}
 		else {
+        //拿到多播器，发送这个时间
 			getApplicationEventMulticaster().multicastEvent(applicationEvent, eventType);
 		}
 
 		// Publish event via parent context as well...
+      // 这里注意：如果存在父容器，那也给父容器会发送一个事件
 		if (this.parent != null) {
 			if (this.parent instanceof AbstractApplicationContext) {
 				((AbstractApplicationContext) this.parent).publishEvent(event, eventType);
@@ -911,7 +917,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * Uses SimpleApplicationEventMulticaster if none defined in the context.
 	 * @see org.springframework.context.event.SimpleApplicationEventMulticaster
    *
-   * 若用户自己定义了这个Bean（备注：Bean名称必须是"applicationEventMulticaster"哦），就以用户的为准。否则注册一个系统默认的SimpleApplicationEventMulticaster
+   * 若用户自己定义了这个Bean
+   * （备注：Bean名称必须是"applicationEventMulticaster"哦），就以用户的为准。
+   * 否则注册一个系统默认的SimpleApplicationEventMulticaster
 	 */
 	protected void initApplicationEventMulticaster() {
 		ConfigurableListableBeanFactory beanFactory = getBeanFactory();
@@ -963,8 +971,8 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			DefaultLifecycleProcessor defaultProcessor = new DefaultLifecycleProcessor();
 			defaultProcessor.setBeanFactory(beanFactory);
 			this.lifecycleProcessor = defaultProcessor;
-          // 直接注册成单例Bean进去容器里
-          beanFactory.registerSingleton(LIFECYCLE_PROCESSOR_BEAN_NAME, this.lifecycleProcessor);
+      // 直接注册成单例Bean进去容器里
+      beanFactory.registerSingleton(LIFECYCLE_PROCESSOR_BEAN_NAME, this.lifecycleProcessor);
 			if (logger.isTraceEnabled()) {
 				logger.trace("No '" + LIFECYCLE_PROCESSOR_BEAN_NAME + "' bean, using " +
 						"[" + this.lifecycleProcessor.getClass().getSimpleName() + "]");

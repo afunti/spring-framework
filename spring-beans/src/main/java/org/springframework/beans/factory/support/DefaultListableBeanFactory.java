@@ -869,6 +869,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         return (this.configurationFrozen || super.isBeanEligibleForMetadataCaching(beanName));
     }
 
+    /**
+     * 此处必须说明：此处绝大部分的单例Bean定义信息都会被实例化，但是如果是通过FactoryBean定义的，它是懒加载的（如果没人使用，就先不会实例化。只会到使用的时候才实例化~）
+     * @throws BeansException
+     */
     @Override
     public void preInstantiateSingletons() throws BeansException {
         if (logger.isTraceEnabled()) {
@@ -918,9 +922,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         // SmartInitializingSingleton：所有非lazy单例Bean实例化完成后的回调方法 Spring4.1才提供
         //SmartInitializingSingleton的afterSingletonsInstantiated方法是在所有单例bean都已经被创建后执行的
         //InitializingBean#afterPropertiesSet 是在仅仅自己被创建好了执行的
-        // 比如EventListenerMethodProcessor它在afterSingletonsInstantiated方法里就去处理所有的Bean的方法
-        // 看看哪些被标注了@EventListener注解，提取处理也作为一个Listener放到容器addApplicationListener里面去
-
+        // 比如EventListenerMethodProcessor它在afterSingletonsInstantiated方法里就去处理所有的Bean的方法看看哪些被标注了@EventListener注解，
+        // 提取处理也作为一个Listener放到容器addApplicationListener里面去
         for (String beanName : beanNames) {
             Object singletonInstance = getSingleton(beanName);
             if (singletonInstance instanceof SmartInitializingSingleton) {
