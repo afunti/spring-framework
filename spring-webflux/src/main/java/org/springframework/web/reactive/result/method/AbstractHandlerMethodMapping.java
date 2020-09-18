@@ -185,7 +185,8 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 						logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 					}
 				}
-				if (beanType != null && isHandler(beanType)) {
+          //这里很关键，这里表面 只处理标注了注解@Controller或者@RequestMapping的  就认为才是处理器  然后拿到里面的方法，每一个方法就是一个处理器
+         if (beanType != null && isHandler(beanType)) {
 					detectHandlerMethods(beanName);
 				}
 			}
@@ -210,6 +211,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			}
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
+         // url和Controller里的handler对应起来
 				registerHandlerMethod(handler, invocableMethod, mapping);
 			});
 		}

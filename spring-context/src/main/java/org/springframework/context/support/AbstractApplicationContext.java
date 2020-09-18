@@ -759,7 +759,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
       // 默认只有BeanFactoryAware被忽略,所以其它的需要自行设置
       // 因为ApplicationContextAwareProcessor把这5个接口的实现工作做了（具体你可参见源码） 所以这里就直接忽略掉
 
-      beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
+    beanFactory.ignoreDependencyInterface(EnvironmentAware.class);
 		beanFactory.ignoreDependencyInterface(EmbeddedValueResolverAware.class);
 		beanFactory.ignoreDependencyInterface(ResourceLoaderAware.class);
 		beanFactory.ignoreDependencyInterface(ApplicationEventPublisherAware.class);
@@ -880,7 +880,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
           this.messageSource = beanFactory.getBean(MESSAGE_SOURCE_BEAN_NAME, MessageSource.class);
 			// Make MessageSource aware of parent MessageSource.
           // 设置父属性。。。。。。。。。。。。。
-          if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource) {
+      if (this.parent != null && this.messageSource instanceof HierarchicalMessageSource) {
 				HierarchicalMessageSource hms = (HierarchicalMessageSource) this.messageSource;
 				if (hms.getParentMessageSource() == null) {
 					// Only set parent context as parent MessageSource if no parent MessageSource
@@ -893,12 +893,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			}
 		}
 		else {
-			// Use empty MessageSource to be able to accept getMessage calls.
-			DelegatingMessageSource dms = new DelegatingMessageSource();
-          // 其实就是获取到父容器的messageSource字段（否则就是getParent()上下文自己）
-          dms.setParentMessageSource(getInternalParentMessageSource());
-          // 给当前的messageSource赋值
-          this.messageSource = dms;
+      // Use empty MessageSource to be able to accept getMessage calls.
+      DelegatingMessageSource dms = new DelegatingMessageSource();
+      // 其实就是获取到父容器的messageSource字段（否则就是getParent()上下文自己）
+      dms.setParentMessageSource(getInternalParentMessageSource());
+       // 给当前的messageSource赋值
+      this.messageSource = dms;
 			beanFactory.registerSingleton(MESSAGE_SOURCE_BEAN_NAME, this.messageSource);
 			if (logger.isTraceEnabled()) {
 				logger.trace("No '" + MESSAGE_SOURCE_BEAN_NAME + "' bean, using [" + this.messageSource + "]");

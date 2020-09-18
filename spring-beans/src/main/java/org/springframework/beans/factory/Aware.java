@@ -31,6 +31,10 @@ package org.springframework.beans.factory;
  * @author Chris Beams
  * @author Juergen Hoeller
  * @since 3.1
+ *
+ *
+ * Bean对IOC容器的感知
+ *
  */
 public interface Aware {
 

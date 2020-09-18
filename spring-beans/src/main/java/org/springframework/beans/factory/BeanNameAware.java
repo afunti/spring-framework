@@ -32,6 +32,8 @@ package org.springframework.beans.factory;
  * @see BeanClassLoaderAware
  * @see BeanFactoryAware
  * @see InitializingBean
+ *
+ * 可以在Bean中得到它在IoC容器中的Bean实例名称
  */
 public interface BeanNameAware extends Aware {
 

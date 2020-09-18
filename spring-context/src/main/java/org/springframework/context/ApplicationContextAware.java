@@ -55,6 +55,9 @@ import org.springframework.beans.factory.Aware;
  * @see MessageSourceAware
  * @see org.springframework.context.support.ApplicationObjectSupport
  * @see org.springframework.beans.factory.BeanFactoryAware
+ *
+ * 可以在Bean中得到的Bean所在的应用上下文，从而直接在Bean中使用上下文服务
+ *
  */
 public interface ApplicationContextAware extends Aware {
 

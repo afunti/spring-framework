@@ -37,6 +37,9 @@ import org.springframework.beans.BeansException;
  * @see BeanClassLoaderAware
  * @see InitializingBean
  * @see org.springframework.context.ApplicationContextAware
+ *
+ * 可以在Bean中得到Bean所在Ioc容器，从而直接在bean中使用ioc容器服务
+ *
  */
 public interface BeanFactoryAware extends Aware {
 

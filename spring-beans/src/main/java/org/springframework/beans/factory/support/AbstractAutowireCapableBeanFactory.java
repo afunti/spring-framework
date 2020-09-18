@@ -471,6 +471,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
       /**
        * 解析bean class
        * 1.根据设置的 class 属性或 className 解析得到对应的 Class 引用
+       * 这里判断需要创建的Bean是否可以实例化
+       * 这个类是否可以通过类装载器载入
        */
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
@@ -495,6 +497,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         /**
          * 实例化之前解析，BeanPostProcessors扩展点 实例化增强和初始化增强
          * Spring 首先会去解析 bean 所属的真正 Class 引用，因为可能存在一些工厂 bean，而具体的 bean 类型还需要通过工厂方法去推测
+         *
+         * 如果配置了PostProcessor,那这里返回的是一个proxy
          */
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
         /**
@@ -560,8 +564,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /* 1. 采用合适的方式创建 bean 对象 */
 		// Instantiate the bean.通过BeanWrapper实例化Bean
       // 尝试获取对应的 FactoryBean 的 BeanWrapper 对象，如果存在则基于对应的 FactoryBean 创建 bean 对象
+      // 这里的BeanWrapper是用来持有创建出来的Bean对象的
 		BeanWrapper instanceWrapper = null;
 		if (mbd.isSingleton()) {
+		    // 如果是单例，先把缓存中同名的Bean清除
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
       // 如果对应的 FactoryBean 不存在，则采用适当的策略实例化 bean 对象
@@ -637,7 +643,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		// Initialize the bean instance.
-      // 4. 初始化 bean 实例
+      // 4. 初始化 bean 实例，
+      // 依赖注入发生在这里，这个exposedObject在初始化处理完成以后会返回作为依赖注入完成后的Bean
 		Object exposedObject = bean;
 		try {
 		     // （组装）填充bean， 注入各个属性值，如果存在依赖的 bean 则递归初始化
@@ -1393,11 +1400,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 	/**
 	 * Instantiate the given bean using its default constructor.
+   * 使用默认的构造函数对Bean进行实例化
+   *
 	 * @param beanName the name of the bean
 	 * @param mbd the bean definition for the bean
 	 * @return a BeanWrapper for the new instance
 	 */
 	protected BeanWrapper instantiateBean(String beanName, RootBeanDefinition mbd) {
+	    //使用默认的实例化策略对Bean进行实例化，
+      // 默认的实例化策略是CglibSubclassingInstantiationStrategy，也就是使用cglib对Bean进行实例化
 		try {
 			Object beanInstance;
 			if (System.getSecurityManager() != null) {
@@ -1822,9 +1833,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			converter = bw;
 		}
       // 创建属性值解析器
+      // 这个BeanDefinitionValueResolver对BeanDefinition的解析是在这个valueResolver完成的
 		BeanDefinitionValueResolver valueResolver = new BeanDefinitionValueResolver(this, beanName, mbd, converter);
 
 		// Create a deep copy, resolving any references for values.
+      // 为解析值创建一个副本，部分的数据将会被注入到Bean中
 		List<PropertyValue> deepCopy = new ArrayList<>(original.size());
 		boolean resolveNecessary = false;
       // 遍历属性值，执行类型转换
@@ -1881,7 +1894,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Set our (possibly massaged) deep copy.
 		try {
-        // 设置属性值，深拷贝
+        // 设置属性值，深拷贝。这里是依赖注入发生的地方，会在BeanWrapperImpl中完成
 			bw.setPropertyValues(new MutablePropertyValues(deepCopy));
 		}
 		catch (BeansException ex) {

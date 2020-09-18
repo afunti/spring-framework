@@ -222,8 +222,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
-// 急切地检查单例缓存中手动注册的单例
-
+    // 急切地检查单例缓存中手动注册的单例
       /*
      * 尝试从单例集合中获取对应的单实例，
      * 在实例化 bean 的时候可能需要实例化依赖的 bean 对象，Spring 为了避免循环依赖会采用早期引用机制
@@ -259,6 +258,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 
 			// Check if bean definition exists in this factory.
         //如果目标 bean 不在当前 BeanFactory 的管辖范围 则 获取父 BeanFactory 实例
+        /**
+         * 这里对Ioc容器中的BeanDefinition是否存进行检查，检查是否能在当前的BeanFactory中取得需要的Bean。
+         * 如果在当前的工厂中取不到，则到双亲BeanFactory中去取，如果当前的双亲工厂取不到，那就顺着BeanFactory链一直向上查找
+         */
         BeanFactory parentBeanFactory = getParentBeanFactory();
         // 如果已经加载的 bean 定义中不包含目标 bean，则尝试从父 BeanFactory 中获取
         if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
@@ -287,13 +290,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			try {
-          // 如果存在父 bean，则继承父 bean 定义
+          // 如果存在父 bean，则继承父 bean 定义，根据bean的名称取得BeanDefinition
           RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
           // 检查 bean 是否是抽象的，如果是则抛出异常
           checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
-          // 加载当前 bean 依赖的 bean 实例
+          // 加载当前bean的所有依赖的bean 实例，这样会触发getBean的递归调用，直到取得一个没有任何依赖的Bean为止
           String[] dependsOn = mbd.getDependsOn();
           // 存在依赖，递归实例化依赖的 bean 实例
         if (dependsOn != null) {
